@@ -56,7 +56,7 @@ def train(A, B, prior, observationSequence):
 				betaTable[i,t] = np.dot(Bj_aij, B[:,y_t])
 
 	gammaTable = (alphaTable * betaTable) # matrix element-wise mult
-	gammaTable = gammaTable / np.sum(gammaTable, axis=1)[:, np.newaxis]
+	gammaTable = gammaTable / np.sum(gammaTable, axis=0) #[:, np.newaxis]
 
 	xiTable = np.zeros((NUM_STATES, NUM_STATES))
 
@@ -71,6 +71,8 @@ def train(A, B, prior, observationSequence):
 		xiTable[i] = row
 	
 	newprior = gammaTable[:,0] # first column
+	#print "Prior sum is: ", np.sum(newprior)
+	#print newprior
 	# sum over all columns except last
 	newA = xiTable / np.sum(gammaTable[:,:-1], axis=1)#[:, np.newaxis]
 	newB = np.zeros((NUM_STATES, NUM_OBSERVATIONS))
@@ -101,6 +103,7 @@ for i in xrange(50):
 print np.linalg.norm(A - secretA)
 print np.linalg.norm(B - secretB)
 print np.linalg.norm(prior - secretPrior)
-print A
-print B
+#print A
+#print B
 print prior
+print secretPrior
