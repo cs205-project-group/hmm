@@ -1,7 +1,7 @@
 import numpy as np
 NUM_STATES = 4
 NUM_OBSERVATIONS=3
-OBSERVATION_LENGTH=1000
+OBSERVATION_LENGTH=100
 np.random.seed(seed=1)
 
 
@@ -21,11 +21,13 @@ secretA, secretB, secretPrior = randomHMM()
 
 # generate testing observation sequence
 curState = np.random.choice(NUM_STATES, p=secretPrior)
-observationSequence = np.zeros(OBSERVATION_LENGTH)
-for i in xrange(OBSERVATION_LENGTH):
-	observationSequence[i] = np.random.choice(NUM_OBSERVATIONS, p=secretB[curState, :])
-	curState = np.random.choice(NUM_STATES, p=secretA[curState, :])
-
+sequences = []
+for _ in range (1000):
+	observationSequence = np.zeros(OBSERVATION_LENGTH)
+	for i in xrange(OBSERVATION_LENGTH):
+		observationSequence[i] = np.random.choice(NUM_OBSERVATIONS, p=secretB[curState, :])
+		curState = np.random.choice(NUM_STATES, p=secretA[curState, :])
+	sequences.append(observationSequence)
 
 def train(A, B, prior, observationSequence):
 	alphaTable = np.zeros((NUM_STATES, OBSERVATION_LENGTH))
@@ -53,7 +55,7 @@ def train(A, B, prior, observationSequence):
 				Bj_aij = betaTable[:,t+1] * A[i,:]
 				y_t = observationSequence[t+1]
 				betaTable[i,t] = np.dot(Bj_aij, B[:,y_t])
-			betaTable[:, t] /= sum(betaTable[:, t])
+		betaTable[:, t] /= sum(betaTable[:, t])
 	gammaTable = (alphaTable * betaTable) # matrix element-wise mult
 	gammaTable = gammaTable / np.sum(gammaTable, axis=0)
 
@@ -90,7 +92,7 @@ def train(A, B, prior, observationSequence):
 				if j == observationSequence[t]:
 					s += gammaTable[i, t]
 				ss += gammaTable[i, t]	
-			newB[i, j] = s / ss
+			newB[i, j] = s / ss	
 #	for i in xrange(NUM_OBSERVATIONS):
 #		curMask = np.array(observationSequence == i, dtype=np.int32)
 #		mask = np.tile(curMask, (NUM_STATES,1))
@@ -109,7 +111,7 @@ def train(A, B, prior, observationSequence):
 #print 'initial badness'
 A, B, prior = randomHMM()
 A = np.identity(NUM_STATES)
-for i in xrange(10000):	
+for observationSequence in sequences: 
 	print 'Iteration %d' %i	
 	A, B, prior =  train(A, B, prior, observationSequence)
 	print np.linalg.norm(A - secretA)
