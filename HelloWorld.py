@@ -17,6 +17,19 @@ def randomHMM():
 	prior /= prior.sum()
 	return (A, B, prior)
 
+def uniformHMM():
+	#TODO: unform
+	A = np.random.rand(NUM_STATES, NUM_STATES)
+	# normalization from
+	# http://stackoverflow.com/questions/8904694/how-to-normalize-a-2-dimensional-numpy-array-in-python-less-verbose
+	A /= A.sum(axis=1)[:, np.newaxis]
+	B = np.random.uniform(0, 1, size=(NUM_STATES, NUM_OBSERVATIONS))
+	B /= B.sum(axis=1)[:, np.newaxis]
+
+	prior = np.random.uniform(0, 1, size=(NUM_STATES))
+	prior /= prior.sum()
+	return (A, B, prior)
+
 secretA, secretB, secretPrior = randomHMM()
 
 # generate testing observation sequence
@@ -127,8 +140,9 @@ def train(A, B, prior, observationSequence):
 #print prior.shape
 
 #print 'initial badness'
-#A, B, prior = secretA, secretB, secretPrior
-A, B, prior = randomHMM()
+
+A, B, prior = secretA, secretB, secretPrior
+A, B, prior = uniformHMM()
 
 #A = np.identity(NUM_STATES)
 for observationSequence in sequences: 
