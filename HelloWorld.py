@@ -1,7 +1,7 @@
 import numpy as np
 NUM_STATES = 4
-NUM_OBSERVATIONS=3
-OBSERVATION_LENGTH=100
+NUM_OBSERVATIONS=4
+OBSERVATION_LENGTH=100000
 np.random.seed(seed=1)
 
 
@@ -22,7 +22,7 @@ secretA, secretB, secretPrior = randomHMM()
 # generate testing observation sequence
 curState = np.random.choice(NUM_STATES, p=secretPrior)
 sequences = []
-for _ in range (500):
+for _ in range (1):
 	observationSequence = np.zeros(OBSERVATION_LENGTH)
 	for i in xrange(OBSERVATION_LENGTH):
 		observationSequence[i] = np.random.choice(NUM_OBSERVATIONS, p=secretB[curState, :])
@@ -66,33 +66,33 @@ def train(A, B, prior, observationSequence):
 		for t in range(OBSERVATION_LENGTH):
 			gammaTable[i, t] = alphaTable[i, t] * betaTable[i, t] / np.dot(alphaTable[:, t], betaTable[:, t])
 
-#	xiTable = np.zeros((NUM_STATES, NUM_STATES))
-#	for t in reversed(xrange(OBSERVATION_LENGTH - 1)):
-#		alpha_k_sum = np.dot(alphaTable[:, t], betaTable[:, t]) 
-#		for i in xrange(NUM_STATES):
-#			for j in xrange(NUM_STATES):
-#				y_t1 = observationSequence[t+1]
-#				xiTable[i, j] += alphaTable[i, t] * A[i, j] * betaTable[j, t+1] * B[j, y_t1] / alpha_k_sum
-#	oldXiTable = xiTable
 	xiTable = np.zeros((NUM_STATES, NUM_STATES))
+	for t in reversed(xrange(OBSERVATION_LENGTH - 1)):
+		alpha_k_sum = np.dot(alphaTable[:, t], betaTable[:, t]) 
+		for i in xrange(NUM_STATES):
+			for j in xrange(NUM_STATES):
+				y_t1 = observationSequence[t+1]
+				xiTable[i, j] += alphaTable[i, t] * A[i, j] * betaTable[j, t+1] * B[j, y_t1] / (alpha_k_sum * normalizers[t+1])
+#	oldXiTable = xiTable
+#	xiTable = np.zeros((NUM_STATES, NUM_STATES))
 
 		
-	for i in xrange(NUM_STATES):
-		row = np.zeros(NUM_STATES)
-		for t in reversed(xrange(OBSERVATION_LENGTH-1)):
-			y_t1 = observationSequence[t+1]
-			Bj_yt1 = B[:,y_t1]
-			row += alphaTable[i,t] * betaTable[:,t+1] * Bj_yt1 * A[i,:] / (normalizers[t] * np.dot(alphaTable[:,t], betaTable[:,t]))
-		xiTable[i] = row
+#	for i in xrange(NUM_STATES):
+#		row = np.zeros(NUM_STATES)
+#		for t in reversed(xrange(OBSERVATION_LENGTH-1)):
+#			y_t1 = observationSequence[t+1]
+#			Bj_yt1 = B[:,y_t1]
+#			row += alphaTable[i,t] * betaTable[:,t+1] * Bj_yt1 * A[i,:] / (normalizers[t+1] * np.dot(alphaTable[:,t], betaTable[:,t]))
+#		xiTable[i] = row
 
 	newprior = gammaTable[:,0] # first column
 	# sum over all columns except last
-	newA = xiTable / np.sum(gammaTable[:,:-1], axis=1)#[:, np.newaxis]
+	#newA = xiTable / np.sum(gammaTable[:,:-1], axis=1)#[:, np.newaxis]
 
 	newA = np.zeros((NUM_STATES, NUM_STATES))
 	for i in range(NUM_STATES):
 		for j in range(NUM_STATES):
-			newA[i, j] = xiTable[i, j] / sum(gammaTable[i, :])
+			newA[i, j] = xiTable[i, j] / (sum(gammaTable[i, :]) - gammaTable[i, OBSERVATION_LENGTH - 1])
 
 	newB = np.zeros((NUM_STATES, NUM_OBSERVATIONS))
 	for i in xrange(NUM_STATES):
@@ -110,6 +110,8 @@ def train(A, B, prior, observationSequence):
 #		row = np.sum(mask * gammaTable)
 #		newB[:,i] = row / np.sum(gammaTable, axis=1)
 #
+
+	print newprior.sum()
 	return(newA, newB, newprior)
 
 
@@ -120,14 +122,15 @@ def train(A, B, prior, observationSequence):
 #print prior.shape
 
 #print 'initial badness'
-A, B, prior = secretA, secretB, secretPrior
+#A, B, prior = secretA, secretB, secretPrior
 A, B, prior = randomHMM()
+#A = np.identity(NUM_STATES)
 for observationSequence in sequences: 
 	print np.linalg.norm(A - secretA)
 	print np.linalg.norm(B - secretB)
 	print np.linalg.norm(prior - secretPrior)
-
-	for i in range(1, 1000):
+	print prior
+	for i in range(1):
 		print 'Iteration %d' %i	
 		A, B, prior =  train(A, B, prior, observationSequence)
 		print np.linalg.norm(A - secretA)
