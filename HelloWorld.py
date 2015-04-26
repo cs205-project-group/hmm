@@ -57,7 +57,8 @@ def train(A, B, prior, observationSequence):
 				Bj_aij = betaTable[:,t+1] * A[i,:]
 				y_t = observationSequence[t+1]
 				betaTable[i,t] = np.dot(Bj_aij, B[:,y_t])
-		betaTable[:, t] /= normalizers[t]
+		if t < OBSERVATION_LENGTH - 1:
+			betaTable[:, t] /= normalizers[t+1]
 
 #	gammaTable = (alphaTable * betaTable) # matrix element-wise mult
 #	gammaTable = gammaTable / np.sum(gammaTable, axis=0)
@@ -82,7 +83,7 @@ def train(A, B, prior, observationSequence):
 #		for t in reversed(xrange(OBSERVATION_LENGTH-1)):
 #			y_t1 = observationSequence[t+1]
 #			Bj_yt1 = B[:,y_t1]
-#			row += alphaTable[i,t] * betaTable[:,t+1] * Bj_yt1 * A[i,:] / (normalizers[t+1] * np.dot(alphaTable[:,t], betaTable[:,t]))
+#			row += alphaTable[i,t] * betaTable[:,t+1] * Bj_yt1 * A[i,:] / (normalizers[t] * np.dot(alphaTable[:,t], betaTable[:,t]))
 #		xiTable[i] = row
 
 	newprior = gammaTable[:,0] # first column
@@ -92,7 +93,7 @@ def train(A, B, prior, observationSequence):
 	newA = np.zeros((NUM_STATES, NUM_STATES))
 	for i in range(NUM_STATES):
 		for j in range(NUM_STATES):
-			newA[i, j] = xiTable[i, j] / (sum(gammaTable[i, :]) - gammaTable[i, OBSERVATION_LENGTH - 1])
+			newA[i, j] = xiTable[i, j] / sum(xiTable[i, :])
 
 	newB = np.zeros((NUM_STATES, NUM_OBSERVATIONS))
 	for i in xrange(NUM_STATES):
