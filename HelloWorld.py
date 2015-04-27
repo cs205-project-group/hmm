@@ -1,4 +1,5 @@
 import numpy as np
+from sklearn import hmm
 NUM_STATES = 4
 NUM_OBSERVATIONS=4
 OBSERVATION_LENGTH=100000
@@ -141,6 +142,13 @@ def train(A, B, prior, observationSequence):
 
 #print 'initial badness'
 
+A, B, prior = uniformHMM()
+model = hmm.MultinomialHMM(n_components=NUM_STATES, n_symbols=NUM_OBSERVATIONS, transmat=A, emissionprob=B, startprob=prior)
+print model.fit(sequences[0])
+
+
+
+'''
 A, B, prior = secretA, secretB, secretPrior
 A, B, prior = uniformHMM()
 
@@ -156,3 +164,4 @@ for observationSequence in sequences:
 		print np.linalg.norm(A - secretA)
 		print np.linalg.norm(B - secretB)
 		print np.linalg.norm(prior - secretPrior)
+'''
