@@ -1,7 +1,7 @@
 import numpy as np
 NUM_STATES = 4
 NUM_OBSERVATIONS=4
-OBSERVATION_LENGTH=100000
+OBSERVATION_LENGTH=10000
 np.random.seed(seed=1)
 
 
@@ -26,7 +26,7 @@ def uniformHMM():
 	#B = np.random.uniform(0, 1, size=(NUM_STATES, NUM_OBSERVATIONS))
 	B /= B.sum(axis=1)[:, np.newaxis]
 
-    prior = np.ones(NUM_STATES)
+	prior = np.ones(NUM_STATES)
 	prior /= prior.sum()
 
 	return (A, B, prior)
@@ -142,7 +142,7 @@ def train(A, B, prior, observationSequence):
 
 #print 'initial badness'
 
-A, B, prior = secretA, secretB, secretPrior
+#A, B, prior = secretA, secretB, secretPrior
 A, B, prior = uniformHMM()
 
 #A = np.identity(NUM_STATES)
@@ -151,7 +151,7 @@ for observationSequence in sequences:
 	print np.linalg.norm(B - secretB)
 	print np.linalg.norm(prior - secretPrior)
 	print prior
-	for i in range(1):
+	for i in range(100):
 		print 'Iteration %d' %i	
 		A, B, prior =  train(A, B, prior, observationSequence)
 		print np.linalg.norm(A - secretA)
