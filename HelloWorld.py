@@ -2,7 +2,7 @@ import numpy as np
 from sklearn import hmm
 NUM_STATES = 4
 NUM_OBSERVATIONS=4
-OBSERVATION_LENGTH=100000
+OBSERVATION_LENGTH=10000
 np.random.seed(seed=1)
 
 
@@ -151,6 +151,7 @@ print model.fit(sequences[0])
 
 '''
 A, B, prior = secretA, secretB, secretPrior
+>>>>>>> origin/master
 A, B, prior = uniformHMM()
 
 #A = np.identity(NUM_STATES)
@@ -159,7 +160,7 @@ for observationSequence in sequences:
 	print np.linalg.norm(B - secretB)
 	print np.linalg.norm(prior - secretPrior)
 	print prior
-	for i in range(1):
+	for i in range(100):
 		print 'Iteration %d' %i	
 		A, B, prior =  train(A, B, prior, observationSequence)
 		print np.linalg.norm(A - secretA)
