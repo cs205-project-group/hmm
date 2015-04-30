@@ -1,6 +1,6 @@
 num_states = 4;
 num_observations = 4;
-observation_length = 100000;
+observation_length = 3;
 
 A = random('unif', 0, 1, [num_states, num_states]);
 A = A ./ repmat(sum(A, 2), [1,num_states]);
@@ -12,11 +12,11 @@ B = B ./ repmat(sum(B,2), [1,num_observations]);
 B = eye(4);
 [seq, states] = hmmgenerate(observation_length, A, B);
 
-
+seq = [1,, ]
 Aguess = random('unif', 0, 1, [num_states, num_states]);
 Aguess = Aguess ./ repmat(sum(Aguess, 2), [1,num_states]);
 
 Bguess = random('unif', 0, 1, [num_states, num_observations]);
 Bguess = Bguess ./ repmat(sum(Bguess,2), [1,num_observations]);
 disp('training..')
-[tranEst, emitEst] = hmmtrain(seq, Aguess, Bguess);
+[tranEst, emitEst] = hmmtrain(seq, Aguess, Bguess, 'Maxiterations', 1);

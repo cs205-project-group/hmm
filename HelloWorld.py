@@ -6,6 +6,8 @@ OBSERVATION_LENGTH=10000
 np.random.seed(seed=1)
 
 
+
+
 def randomHMM():
 	A = np.random.rand(NUM_STATES, NUM_STATES)
 	# normalization from
@@ -33,8 +35,8 @@ def uniformHMM():
 	return (A, B, prior)
 
 secretA, secretB, secretPrior = randomHMM()
+secretB = np.identity(NUM_STATES)
 
-# generate testing observation sequence
 curState = np.random.choice(NUM_STATES, p=secretPrior)
 sequences = []
 for _ in range (1):
@@ -45,74 +47,58 @@ for _ in range (1):
 	sequences.append(observationSequence)
 
 def train(A, B, prior, observationSequence):
-	alphaTable = np.zeros((NUM_STATES, OBSERVATION_LENGTH))
+	alphaTable = np.zeros((NUM_STATES, OBSERVATION_LENGTH +1))
 	# http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.334.1331&rep=rep1&type=pdf
-	normalizers = np.zeros(OBSERVATION_LENGTH)
+	normalizers = np.zeros(OBSERVATION_LENGTH+1)
 
 	# compute forward probabilities
-	for t in xrange(OBSERVATION_LENGTH):
+	for t in xrange(OBSERVATION_LENGTH+1):
 		for i in xrange(NUM_STATES):
 			if t == 0:
-				y_0 = observationSequence[0]
-				alphaTable[i, t] = prior[i] * B[i, y_0]
+				alphaTable[i, t] = prior[i]
 			else:
-				y_t = observationSequence[t]
+				y_t = observationSequence[t-1]
 				alphaTable[i, t] = B[i, y_t] * np.dot(alphaTable[:, t-1], A[:, i])
 		# http://digital.cs.usu.edu/~cyan/CS7960/hmm-tutorial.pdf
 		# also based on other HMM small state space paper
 		normalizers[t] = sum(alphaTable[:, t])
 		alphaTable[:, t] /= normalizers[t]
-	betaTable = np.zeros((NUM_STATES, OBSERVATION_LENGTH))
+	betaTable = np.zeros((NUM_STATES, OBSERVATION_LENGTH+1))
 
-	for t in reversed(xrange(OBSERVATION_LENGTH)):
+	for t in reversed(xrange(OBSERVATION_LENGTH+1)):
 		for i in xrange(NUM_STATES):
-			if t == OBSERVATION_LENGTH-1:
+			if t == OBSERVATION_LENGTH:
 				betaTable[i,t] = 1
 			else:
-				Bj_aij = betaTable[:,t+1] * A[i,:]
-				y_t = observationSequence[t+1]
-				betaTable[i,t] = np.dot(Bj_aij, B[:,y_t])
+				sm = 0
+				y_t = observationSequence[t]
+				for j in range(NUM_STATES):
+					sm += betaTable[j, t+1] * A[i, j] * B[j, y_t]	
+				betaTable[i,t] = sm
 
-		if t < OBSERVATION_LENGTH - 1:
+		if t < OBSERVATION_LENGTH:
 			betaTable[:, t] /= normalizers[t+1]
-
-
-#	gammaTable = (alphaTable * betaTable) # matrix element-wise mult
-#	gammaTable = gammaTable / np.sum(gammaTable, axis=0)
-	gammaTable = np.zeros((NUM_STATES, OBSERVATION_LENGTH))
+	gammaTable = np.zeros((NUM_STATES, OBSERVATION_LENGTH + 1))
 	for i in range (NUM_STATES):
-		for t in range(OBSERVATION_LENGTH):
+		for t in range(OBSERVATION_LENGTH + 1):
 			gammaTable[i, t] = alphaTable[i, t] * betaTable[i, t] / np.dot(alphaTable[:, t], betaTable[:, t])
 
+	newprior = gammaTable[:,0] # first column
+	gammaTable = gammaTable[:, 1:]
+
 	xiTable = np.zeros((NUM_STATES, NUM_STATES))
-	for t in reversed(xrange(OBSERVATION_LENGTH - 1)):
+	for t in range(OBSERVATION_LENGTH):
 		alpha_k_sum = np.dot(alphaTable[:, t], betaTable[:, t]) 
 		for i in xrange(NUM_STATES):
 			for j in xrange(NUM_STATES):
-				y_t1 = observationSequence[t+1]
+ 				y_t1 = observationSequence[t]
 				xiTable[i, j] += alphaTable[i, t] * A[i, j] * betaTable[j, t+1] * B[j, y_t1] / (alpha_k_sum * normalizers[t+1])
-#	oldXiTable = xiTable
-#	xiTable = np.zeros((NUM_STATES, NUM_STATES))
 
-		
-#	for i in xrange(NUM_STATES):
-#		row = np.zeros(NUM_STATES)
-#		for t in reversed(xrange(OBSERVATION_LENGTH-1)):
-#			y_t1 = observationSequence[t+1]
-#			Bj_yt1 = B[:,y_t1]
-#			row += alphaTable[i,t] * betaTable[:,t+1] * Bj_yt1 * A[i,:] / (normalizers[t] * np.dot(alphaTable[:,t], betaTable[:,t]))
-#		xiTable[i] = row
-
-	newprior = gammaTable[:,0] # first column
-	#print "Prior sum is: ", np.sum(newprior)
-	#print newprior
-	# sum over all columns except last
-	#newA = xiTable / np.sum(gammaTable[:,:-1], axis=1)#[:, np.newaxis]
 
 	newA = np.zeros((NUM_STATES, NUM_STATES))
 	for i in range(NUM_STATES):
 		for j in range(NUM_STATES):
-			newA[i, j] = xiTable[i, j] / sum(xiTable[i, :])
+			newA[i, j] = xiTable[i, j] / (sum(gammaTable[i, :]))# - gammaTable[i, OBSERVATION_LENGTH-1])
 
 	newB = np.zeros((NUM_STATES, NUM_OBSERVATIONS))
 	for i in xrange(NUM_STATES):
@@ -124,46 +110,19 @@ def train(A, B, prior, observationSequence):
 					s += gammaTable[i, t]
 				ss += gammaTable[i, t]	
 			newB[i, j] = s / ss	
-#	for i in xrange(NUM_OBSERVATIONS):
-#		curMask = np.array(observationSequence == i, dtype=np.int32)
-#		mask = np.tile(curMask, (NUM_STATES,1))
-#		row = np.sum(mask * gammaTable)
-#		newB[:,i] = row / np.sum(gammaTable, axis=1)
-#
 
-	print newprior.sum()
 	return(newA, newB, newprior)
 
 
-#A, B, prior = randomHMM()	
-#print 'pre-update'
-#print A.shape
-#print B.shape
-#print prior.shape
-
-#print 'initial badness'
-
-A, B, prior = uniformHMM()
-model = hmm.MultinomialHMM(n_components=NUM_STATES, n_symbols=NUM_OBSERVATIONS, transmat=A, startprob=prior)
-print model.fit(sequences[0])
-
-
-
-'''
 A, B, prior = secretA, secretB, secretPrior
->>>>>>> origin/master
-A, B, prior = uniformHMM()
 
-#A = np.identity(NUM_STATES)
 for observationSequence in sequences: 
 	print np.linalg.norm(A - secretA)
 	print np.linalg.norm(B - secretB)
 	print np.linalg.norm(prior - secretPrior)
-	print prior
 	for i in range(100):
 		print 'Iteration %d' %i	
 		A, B, prior =  train(A, B, prior, observationSequence)
-		print np.linalg.norm(A - secretA)
-		print np.linalg.norm(B - secretB)
-		print np.linalg.norm(prior - secretPrior)
-'''
+		print "A error: ", np.linalg.norm(A - secretA)
+		print "B error: ", np.linalg.norm(B - secretB)
+		print "prior error: ", np.linalg.norm(prior - secretPrior)
