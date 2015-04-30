@@ -27,7 +27,7 @@ def uniformHMM():
 	#B = np.random.uniform(0, 1, size=(NUM_STATES, NUM_OBSERVATIONS))
 	B /= B.sum(axis=1)[:, np.newaxis]
 
-    prior = np.ones(NUM_STATES)
+	prior = np.ones(NUM_STATES)
 	prior /= prior.sum()
 
 	return (A, B, prior)
@@ -144,7 +144,7 @@ def train(A, B, prior, observationSequence):
 #print 'initial badness'
 
 A, B, prior = uniformHMM()
-model = hmm.MultinomialHMM(n_components=NUM_STATES, n_symbols=NUM_OBSERVATIONS, transmat=A, emissionprob=B, startprob=prior)
+model = hmm.MultinomialHMM(n_components=NUM_STATES, n_symbols=NUM_OBSERVATIONS, transmat=A, startprob=prior)
 print model.fit(sequences[0])
 
 
