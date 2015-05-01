@@ -113,7 +113,7 @@ def train(A, B, prior, observationSequence):
 
 	return(newA, newB, newprior)
 
-A, Bi, prior = secretA, secretB, secretPrior
+A, B, prior = secretA, secretB, secretPrior
 
 from graphlab import SGraph, Vertex, Edge
 
@@ -129,14 +129,19 @@ def serial():
             A, B, prior =  train(A, B, prior, observationSequence)
             print "A error: ", np.linalg.norm(A - secretA)
             print "B error: ", np.linalg.norm(B - secretB)
-		    print "prior error: ", np.linalg.norm(prior - secretPrior)
+            print "prior error: ", np.linalg.norm(prior - secretPrior)
 
 
 def parallel():
 
+    def addKeys(d):
+        for i in range(NUM_OBSERVATIONS):
+            d["b" + str(i)] = 0
+        return d
+
     g = SGraph()
-    verticesEven = map(lambda i: Vertex(str(i) + " odd", attr={'parity': 0, 'i': i, 'ait': prior[i]}), range(NUM_STATES ))
-    verticesOdd = map(lambda i: Vertex(str(i) + " even", attr={'parity': 1, 'i': i, 'ait': 0}), range(NUM_STATES ))
+    verticesEven = map(lambda i: Vertex(str(i) + " odd", attr=addKeys({'parity': 0, 'i': i, 'ait': prior[i]})), range(NUM_STATES ))
+    verticesOdd = map(lambda i: Vertex(str(i) + " even", attr=addKeys{'parity': 1, 'i': i, 'ait': 0})), range(NUM_STATES ))
 
     g = g.add_vertices(verticesOdd + verticesEven)
 
@@ -146,7 +151,9 @@ def parallel():
             edges.append(Edge(str(i) + " even", str(j) + " odd", attr={'aij': A[i, j]}))
 
     g = g.add_edges(edges)
+    g = example.fp(g, B.tolist())
+    g.show()
+    import time
+    time.sleep(10000)
 
-    g = example.fp(g)
-
-
+parallel()
