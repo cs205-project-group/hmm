@@ -1,11 +1,10 @@
+import graphlab
 import numpy as np
 from sklearn import hmm
 NUM_STATES = 4
 NUM_OBSERVATIONS=4
-OBSERVATION_LENGTH=10000
+OBSERVATION_LENGTH=100000
 np.random.seed(seed=1)
-
-
 
 
 def randomHMM():
@@ -113,16 +112,39 @@ def train(A, B, prior, observationSequence):
 
 	return(newA, newB, newprior)
 
-
 A, B, prior = secretA, secretB, secretPrior
+from graphlab import SGraph, Vertex, Edge
+g = SGraph()
+verticesEven = map(lambda i: Vertex(str(i) + " even", attr={'parity': 0, 'i': i, 'ait': prior[i]}), range(NUM_STATES ))
+verticesOdd = map(lambda i: Vertex(str(i) + " odd", attr={'parity': 1, 'i': i, 'ait': 0, 'b': B[i, observationSequence[0]]}), range(NUM_STATES ))
 
-for observationSequence in sequences: 
-	print np.linalg.norm(A - secretA)
-	print np.linalg.norm(B - secretB)
-	print np.linalg.norm(prior - secretPrior)
-	for i in range(100):
-		print 'Iteration %d' %i	
-		A, B, prior =  train(A, B, prior, observationSequence)
-		print "A error: ", np.linalg.norm(A - secretA)
-		print "B error: ", np.linalg.norm(B - secretB)
-		print "prior error: ", np.linalg.norm(prior - secretPrior)
+g = g.add_vertices(verticesOdd + verticesEven)
+
+edges = []
+for i in range (NUM_STATES):
+    for j in range (NUM_STATES):
+        edges.append(Edge(str(i) + " even", str(j) + " odd", attr={'aij': A[i, j]}))
+
+g = g.add_edges(edges)
+
+def sum_shit(src, edge, dest):
+    dest['ait'] += edge['aij'] * src['ait']
+    return (src, edge, dest)
+g = g.triple_apply(sum_shit, ['ait'], ['aij'])
+g.show()
+
+
+
+import time
+time.sleep(1000000)
+
+#for observationSequence in sequences: 
+#	print np.linalg.norm(A - secretA)
+#	print np.linalg.norm(B - secretB)
+#	print np.linalg.norm(prior - secretPrior)
+#	for i in range(100):
+#		print 'Iteration %d' %i	
+#		A, B, prior =  train(A, B, prior, observationSequence)
+#		print "A error: ", np.linalg.norm(A - secretA)
+#		print "B error: ", np.linalg.norm(B - secretB)
+#		print "prior error: ", np.linalg.norm(prior - secretPrior)
