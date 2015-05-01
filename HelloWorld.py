@@ -118,8 +118,8 @@ from graphlab import SGraph, Vertex, Edge
 g = SGraph()
 
 
-verticesEven = map(lambda i: Vertex(i, attr={'parity': 0, 'i': i, 'ait': prior[i]}), range(NUM_STATES ))
-verticesOdd = map(lambda i: Vertex(i + NUM_STATES, attr={'parity': 1, 'i': i, 'ait': 0}), range(NUM_STATES ))
+verticesEven = map(lambda i: Vertex(str(i) + " odd", attr={'parity': 0, 'i': i, 'ait': prior[i]}), range(NUM_STATES ))
+verticesOdd = map(lambda i: Vertex(str(i) + " even", attr={'parity': 1, 'i': i, 'ait': 0}), range(NUM_STATES ))
 
 g = g.add_vertices(verticesOdd + verticesEven)
 
