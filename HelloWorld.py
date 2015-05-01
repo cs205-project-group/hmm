@@ -116,6 +116,22 @@ def train(A, B, prior, observationSequence):
 A, Bi, prior = secretA, secretB, secretPrior
 
 from graphlab import SGraph, Vertex, Edge
+
+
+
+def serial():
+    for observationSequence in sequences: 
+        print np.linalg.norm(A - secretA)
+        print np.linalg.norm(B - secretB)
+        print np.linalg.norm(prior - secretPrior)
+        for i in range(100):
+            print 'Iteration %d' %i	
+            A, B, prior =  train(A, B, prior, observationSequence)
+            print "A error: ", np.linalg.norm(A - secretA)
+            print "B error: ", np.linalg.norm(B - secretB)
+		    print "prior error: ", np.linalg.norm(prior - secretPrior)
+
+
 def parallel():
 
     g = SGraph()
@@ -133,17 +149,4 @@ def parallel():
 
     g = example.fp(g)
 
-
-
-def serial():
-    for observationSequence in sequences: 
-        print np.linalg.norm(A - secretA)
-        print np.linalg.norm(B - secretB)
-        print np.linalg.norm(prior - secretPrior)
-        for i in range(100):
-            print 'Iteration %d' %i	
-            A, B, prior =  train(A, B, prior, observationSequence)
-            print "A error: ", np.linalg.norm(A - secretA)
-            print "B error: ", np.linalg.norm(B - secretB)
-		    print "prior error: ", np.linalg.norm(prior - secretPrior)
 
