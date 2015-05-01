@@ -1,5 +1,6 @@
 import graphlab
 import numpy as np
+import example
 from sklearn import hmm
 NUM_STATES = 4
 NUM_OBSERVATIONS=4
@@ -115,9 +116,9 @@ def train(A, B, prior, observationSequence):
 A, Bi, prior = secretA, secretB, secretPrior
 from graphlab import SGraph, Vertex, Edge
 g = SGraph()
-print observationSequence[0]
-verticesEven = map(lambda i: Vertex(str(i), attr={'parity': 0, 'i': i, 'ait': prior[i]}), range(NUM_STATES ))
-verticesOdd = map(lambda i: Vertex(i + NUM_STATES, attr={'parity': 1, 'i': i, 'ait': 0, 'b': Bi[i, int(observationSequence[0])]}), range(NUM_STATES ))
+
+verticesEven = map(lambda i: Vertex(i, attr={'parity': 0, 'i': i, 'ait': prior[i]}), range(NUM_STATES ))
+verticesOdd = map(lambda i: Vertex(i + NUM_STATES, attr={'parity': 1, 'i': i, 'ait': 0}), range(NUM_STATES ))
 
 g = g.add_vertices(verticesOdd + verticesEven)
 
@@ -131,7 +132,7 @@ g = g.add_edges(edges)
 def sum_shit(src, edge, dest):
     dest['ait'] += edge['aij'] * src['ait']
     return (src, edge, dest)
-g = g.triple_apply(sum_shit, ['ait'], ['aij'])
+g = example.fp(g)
 g.show()
 
 
@@ -149,3 +150,4 @@ time.sleep(1000000)
 #		print "A error: ", np.linalg.norm(A - secretA)
 #		print "B error: ", np.linalg.norm(B - secretB)
 #		print "prior error: ", np.linalg.norm(prior - secretPrior)
+
