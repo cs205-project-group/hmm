@@ -114,41 +114,36 @@ def train(A, B, prior, observationSequence):
 	return(newA, newB, newprior)
 
 A, Bi, prior = secretA, secretB, secretPrior
+
 from graphlab import SGraph, Vertex, Edge
-g = SGraph()
+def parallel():
 
+    g = SGraph()
+    verticesEven = map(lambda i: Vertex(str(i) + " odd", attr={'parity': 0, 'i': i, 'ait': prior[i]}), range(NUM_STATES ))
+    verticesOdd = map(lambda i: Vertex(str(i) + " even", attr={'parity': 1, 'i': i, 'ait': 0}), range(NUM_STATES ))
 
-verticesEven = map(lambda i: Vertex(str(i) + " odd", attr={'parity': 0, 'i': i, 'ait': prior[i]}), range(NUM_STATES ))
-verticesOdd = map(lambda i: Vertex(str(i) + " even", attr={'parity': 1, 'i': i, 'ait': 0}), range(NUM_STATES ))
+    g = g.add_vertices(verticesOdd + verticesEven)
 
-g = g.add_vertices(verticesOdd + verticesEven)
+    edges = []
+    for i in range (NUM_STATES):
+        for j in range (NUM_STATES):
+            edges.append(Edge(str(i) + " even", str(j) + " odd", attr={'aij': A[i, j]}))
 
-edges = []
-for i in range (NUM_STATES):
-    for j in range (NUM_STATES):
-        edges.append(Edge(str(i) + " even", str(j) + " odd", attr={'aij': A[i, j]}))
+    g = g.add_edges(edges)
 
-g = g.add_edges(edges)
-
-def sum_shit(src, edge, dest):
-    dest['ait'] += edge['aij'] * src['ait']
-    return (src, edge, dest)
-g = example.fp(g)
-g.show()
+    g = example.fp(g)
 
 
 
-import time
-time.sleep(1000000)
-
-#for observationSequence in sequences: 
-#	print np.linalg.norm(A - secretA)
-#	print np.linalg.norm(B - secretB)
-#	print np.linalg.norm(prior - secretPrior)
-#	for i in range(100):
-#		print 'Iteration %d' %i	
-#		A, B, prior =  train(A, B, prior, observationSequence)
-#		print "A error: ", np.linalg.norm(A - secretA)
-#		print "B error: ", np.linalg.norm(B - secretB)
-#		print "prior error: ", np.linalg.norm(prior - secretPrior)
+def serial():
+    for observationSequence in sequences: 
+        print np.linalg.norm(A - secretA)
+        print np.linalg.norm(B - secretB)
+        print np.linalg.norm(prior - secretPrior)
+        for i in range(100):
+            print 'Iteration %d' %i	
+            A, B, prior =  train(A, B, prior, observationSequence)
+            print "A error: ", np.linalg.norm(A - secretA)
+            print "B error: ", np.linalg.norm(B - secretB)
+		    print "prior error: ", np.linalg.norm(prior - secretPrior)
 
