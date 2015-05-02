@@ -57,14 +57,15 @@ def train(A, B, prior, observationSequence):
 				alphaTable[i, t] = prior[i]
 			else:
 				y_t = observationSequence[t-1]
-				alphaTable[i, t] = np.dot(alphaTable[:, t-1], A[:, i])#B[i, y_t] * np.dot(alphaTable[:, t-1], A[:, i])
+				alphaTable[i, t] = B[i, y_t] * np.dot(alphaTable[:, t-1], A[:, i])
 		# http://digital.cs.usu.edu/~cyan/CS7960/hmm-tutorial.pdf
 		# also based on other HMM small state space paper
 		#if t == 1:
 		#	return alphaTable[:,1]
 
 		normalizers[t] = sum(alphaTable[:, t])
-		#alphaTable[:, t] /= normalizers[t]
+		print "t", normalizers[t]
+        alphaTable[:, t] /= normalizers[t]
 	return alphaTable
 	betaTable = np.zeros((NUM_STATES, OBSERVATION_LENGTH+1))
 
@@ -150,18 +151,16 @@ def parallel(observationSequence):
 			edges.append(Edge(str(i) + " even", str(j) + " odd", attr={'parity': 0, 'aij': A[i, j]}))
 			edges.append(Edge(str(i) + " odd", str(j) + " even", attr={'parity': 1, 'aij': A[i, j]}))
 
-
 	g = g.add_edges(edges)
 
 	print "finished adding edges. calling example.fg..."
-	g = example.fp(g, observationSequence)
+	#g = example.fp(g, observationSequence)
 	print "finished calling example fg"
 	print g.vertices
 	#g.show()
 	#import time
 	#time.sleep(10000)
 
-parallel(sequences[0])
-
 print train(A, B, prior, observationSequence)
+parallel(sequences[0])
 
