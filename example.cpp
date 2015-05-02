@@ -13,19 +13,18 @@ gl_sgraph fp(gl_sgraph& g, std::vector<std::vector<float>> B) {
 
    // fill in Bi* for each vertex i
    // https://dato.com/products/create/sdk/docs/page_userguide_sframe.html
-   g.vertices()["i"] = g.vertices().apply([&B](const std::vector<flexible_type>& row) { 
-        FILE *file = fopen("test.txt", "w+");
+    gl_sarray arr = g.vertices()["b"];
+    FILE *f = fopen("test.txt", "w");
+    for (std::vector<flexible_type> a: arr.range_iterator()) {
+        for (float ai : a) {
+            fprintf(f, "%f\n", ai);
+        }
+        fprintf(f, "\n");
+    }
 
-        for (float b : row)
-            fprintf(file, "%f ", b);
-        printf("\n");
-        fclose(file);
-        (void)B;
-        float x = row[0];
-            return x; },
+    fclose(f);
 
-  flex_type_enum::FLOAT);
-  return g.triple_apply(sum_shit, {"ait", "aij"});
+    return g.triple_apply(sum_shit, {"ait", "aij"});
 }
 
 BEGIN_FUNCTION_REGISTRATION

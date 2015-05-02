@@ -132,13 +132,9 @@ def serial():
 
 def parallel():
 
-    def addKeys(d):
-        for i in range(NUM_OBSERVATIONS):
-            d["b" + str(i)] = i + 25
-        return d
     g = SGraph()
-    verticesEven = map(lambda i: Vertex(str(i) + " odd", attr=addKeys({'parity': -2, 'i': i, 'ait': prior[i]})), range(NUM_STATES ))
-    verticesOdd = map(lambda i: Vertex(str(i) + " even", attr=addKeys({'parity': -1, 'i': i, 'ait': 0})), range(NUM_STATES ))
+    verticesEven = map(lambda i: Vertex(str(i) + " odd", attr={'parity': -2, 'i': i, 'ait': prior[i], 'b': B[i, :]}), range(NUM_STATES ))
+    verticesOdd = map(lambda i: Vertex(str(i) + " even", attr={'parity': -1, 'i': i, 'ait': 0, 'b': B[i, :]}), range(NUM_STATES))
 
     g = g.add_vertices(verticesOdd + verticesEven)
 
