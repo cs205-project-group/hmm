@@ -34,7 +34,7 @@ def uniformHMM():
 	return (A, B, prior)
 
 secretA, secretB, secretPrior = randomHMM()
-secretB = np.identity(NUM_STATES)
+#secretB = np.identity(NUM_STATES)
 
 curState = np.random.choice(NUM_STATES, p=secretPrior)
 sequences = []
@@ -60,11 +60,8 @@ def train(A, B, prior, observationSequence):
 				alphaTable[i, t] = B[i, y_t] * np.dot(alphaTable[:, t-1], A[:, i])
 		# http://digital.cs.usu.edu/~cyan/CS7960/hmm-tutorial.pdf
 		# also based on other HMM small state space paper
-		#if t == 1:
-		#	return alphaTable[:,1]
 
 		normalizers[t] = sum(alphaTable[:, t])
-		print "t", normalizers[t]
         alphaTable[:, t] /= normalizers[t]
 	return alphaTable
 	betaTable = np.zeros((NUM_STATES, OBSERVATION_LENGTH+1))
@@ -154,7 +151,7 @@ def parallel(observationSequence):
 	g = g.add_edges(edges)
 
 	print "finished adding edges. calling example.fg..."
-	#g = example.fp(g, observationSequence)
+	g = example.fp(g, observationSequence)
 	print "finished calling example fg"
 	print g.vertices
 	#g.show()
