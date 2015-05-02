@@ -9,16 +9,14 @@ np.random.seed(seed=1)
 
 
 def randomHMM():
-	A = np.random.rand(NUM_STATES, NUM_STATES)
-	# normalization from
-	# http://stackoverflow.com/questions/8904694/how-to-normalize-a-2-dimensional-numpy-array-in-python-less-verbose
-	A /= A.sum(axis=1)[:, np.newaxis]
-	B = np.random.uniform(0, 1, size=(NUM_STATES, NUM_OBSERVATIONS))
-	B /= B.sum(axis=1)[:, np.newaxis]
-
-	prior = np.random.uniform(0, 1, size=(NUM_STATES))
-	prior /= prior.sum()
-	return (A, B, prior)
+    A = np.random.rand(NUM_STATES, NUM_STATES)
+    # normalization from
+    # http://stackoverflow.com/questions/8904694/how-to-normalize-a-2-dimensional-numpy-array-in-python-less-verbose
+    A /= A.sum(axis=1)[:, np.newaxis]
+    B = np.random.uniform(0, 1, size=(NUM_STATES, NUM_OBSERVATIONS))
+    B /= B.sum(axis=1)[:, np.newaxis]
+    prior = [86] * NUM_STATES
+    return (A, B, prior)
 
 def uniformHMM():
 	A = np.ones((NUM_STATES, NUM_STATES))
@@ -37,9 +35,9 @@ def uniformHMM():
 secretA, secretB, secretPrior = randomHMM()
 secretB = np.identity(NUM_STATES)
 
-curState = np.random.choice(NUM_STATES, p=secretPrior)
+#curState = np.random.choice(NUM_STATES, p=secretPrior)
 sequences = []
-for _ in range (1):
+for _ in range (0):
 	observationSequence = np.zeros(OBSERVATION_LENGTH)
 	for i in xrange(OBSERVATION_LENGTH):
 		observationSequence[i] = np.random.choice(NUM_OBSERVATIONS, p=secretB[curState, :])
@@ -136,12 +134,11 @@ def parallel():
 
     def addKeys(d):
         for i in range(NUM_OBSERVATIONS):
-            d["b" + str(i)] = 0
+            d["b" + str(i)] = i + 25
         return d
-
     g = SGraph()
-    verticesEven = map(lambda i: Vertex(str(i) + " odd", attr=addKeys({'parity': 0, 'i': i, 'ait': prior[i]})), range(NUM_STATES ))
-    verticesOdd = map(lambda i: Vertex(str(i) + " even", attr=addKeys{'parity': 1, 'i': i, 'ait': 0})), range(NUM_STATES ))
+    verticesEven = map(lambda i: Vertex(str(i) + " odd", attr=addKeys({'parity': -2, 'i': i, 'ait': prior[i]})), range(NUM_STATES ))
+    verticesOdd = map(lambda i: Vertex(str(i) + " even", attr=addKeys({'parity': -1, 'i': i, 'ait': 0})), range(NUM_STATES ))
 
     g = g.add_vertices(verticesOdd + verticesEven)
 
@@ -157,3 +154,4 @@ def parallel():
     time.sleep(10000)
 
 parallel()
+
