@@ -56,7 +56,7 @@ def train(A, B, prior, observationSequence):
 			if t == 0:
 				alphaTable[i, t] = prior[i]
 			else:
-				y_t = observationSequence[t-1]
+				y_t = int(observationSequence[t-1])
 				alphaTable[i, t] = B[i, y_t] * np.dot(alphaTable[:, t-1], A[:, i])
 		# http://digital.cs.usu.edu/~cyan/CS7960/hmm-tutorial.pdf
 		# also based on other HMM small state space paper
@@ -154,7 +154,7 @@ def parallel(observationSequence):
 	g = g.add_edges(edges)
 
 	print "finished adding edges. calling example.fg..."
-	#g = example.fp(g, observationSequence)
+	g = example.fp(g, observationSequence)
 	print "finished calling example fg"
 	print g.vertices
 	#g.show()

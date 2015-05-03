@@ -27,11 +27,14 @@ gl_sgraph fp(gl_sgraph& g, std::vector<int> observation_seq) {
         int parity = t_iteration % 2;
         
         int obseqt = observation_seq[t_iteration];
-        
-        g.vertices()["ait"] = g.vertices()[{"ait", "b"}].apply([f, obseqt](const std::vector<flexible_type>& x) {
+       	
+       	//g.vertices()["ait"] = 
+       	g.vertices()["ait"] = g.vertices()[{"ait", "b"}].apply([f, obseqt](const std::vector<flexible_type>& x) {
             fprintf(f, "%f %f\n", x[0][t_iteration], x[1][obseqt]);
-            return x[0][t_iteration] * x[1][obseqt];
-        }, flex_type_enum::FLOAT);
+            std::vector<int> first {1};                                // empty vector of ints
+
+            return {3.};//{x[0][t_iteration] * x[1][obseqt]};
+        }, flex_type_enum::VECTOR);
 
         float normalizer = v[v["parity"] == parity]["ait"].apply([f](const std::vector<flexible_type>& x) { 
             fprintf(f, "%d %f\n", t_iteration, (float)x[t_iteration]);
