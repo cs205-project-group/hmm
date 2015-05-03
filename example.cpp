@@ -22,8 +22,8 @@ std::vector<flexible_type> vector_multiply(std::vector<flexible_type> a,
     return result;
 }
 
-/*float vector_divide(std::vector<flexible_type> a,
-        std::vector<flexible_type> b) {
+std::vector<flexible_type> vector_divide(std::vector<flexible_type> a,
+        std::vector<float> b) {
     assert(a.size() == b.size());
     std::vector<flexible_type> result;
     result.resize(b.size());
@@ -33,7 +33,7 @@ std::vector<flexible_type> vector_multiply(std::vector<flexible_type> a,
     }
 
     return result;
-}*/
+}
 
 void get_gammas(gl_sgraph& g) {
 
@@ -86,17 +86,17 @@ float normalizer = 1;
         float normalizer = normalizers[t_iteration + 1];
 	logprogress_stream << normalizers[t_iteration + 1];
      	g = g.triple_apply([t_iteration, obseqt, normalizer](edge_triple& triple) {
-            if (t_iteration % 2 != (int)triple.edge["pr"]) {
+            if (t_iteration % 2 == (int)triple.edge["pr"]) {
                 triple.source["bit"][t_iteration] += triple.target["b"][obseqt] * (((float)triple.target["bit"][t_iteration+1]) * (float)triple.edge["aij"]) / normalizer;
             }
         }, {"bit", "aij", "b", "pr"});
 	}
     
-    g.vertices()["git"] = g.vertices()[{"ait", "bit"}].apply([](const std::vector<flexible_type>& x) { 
-        return vector_multiply(x[0], x[1]); 
+    g.vertices()["git"] = g.vertices()[{"ait", "bit"}].apply([normalizers](const std::vector<flexible_type>& x) { 
+        return vector_divide(vector_multiply(x[0], x[1]), normalizers); 
     }, flex_type_enum::LIST);
 
-	return g;
+    return g;
 }
 
 BEGIN_FUNCTION_REGISTRATION
