@@ -2,9 +2,9 @@ import graphlab
 import numpy as np
 import example
 from sklearn import hmm
-NUM_STATES = 4
-NUM_OBSERVATIONS=4
-OBSERVATION_LENGTH=6
+NUM_STATES = 3000
+NUM_OBSERVATIONS=3000
+OBSERVATION_LENGTH=3
 np.random.seed(seed=1)
 
 
@@ -62,8 +62,8 @@ def train(A, B, prior, observationSequence):
 		# also based on other HMM small state space paper
 
 		normalizers[t] = sum(alphaTable[:, t])
-        alphaTable[:, t] /= normalizers[t]
-	return alphaTable
+        	alphaTable[:, t] /= normalizers[t]
+	print normalizers
 	betaTable = np.zeros((NUM_STATES, OBSERVATION_LENGTH+1))
 
 	for t in reversed(xrange(OBSERVATION_LENGTH+1)):
@@ -78,7 +78,11 @@ def train(A, B, prior, observationSequence):
 				betaTable[i,t] = sm
 
 		if t < OBSERVATION_LENGTH:
+			print betaTable[:, t]
 			betaTable[:, t] /= normalizers[t+1]
+			print betaTable[:, t]
+	return betaTable
+
 	gammaTable = np.zeros((NUM_STATES, OBSERVATION_LENGTH + 1))
 	for i in range (NUM_STATES):
 		for t in range(OBSERVATION_LENGTH + 1):
@@ -134,19 +138,18 @@ def serial():
 
 
 def parallel(observationSequence):
-	print "starting graph"
+	print observationSequence
 	g = SGraph()
-	verticesEven = map(lambda i: Vertex(str(i) + " even", attr={'parity': 0, 'i': i, 'ait': [prior[i]] + ([0] * OBSERVATION_LENGTH), 'b': B[i, :]}), range(NUM_STATES))
-	verticesOdd = map(lambda i: Vertex(str(i) + " odd", attr={'parity': 1, 'i': i, 'ait': [0] * OBSERVATION_LENGTH, 'b': B[i, :]}), range(NUM_STATES))
+	verticesEven = map(lambda i: Vertex(str(i) + " even", attr={'parity': 0, 'i': i, 'ait': [prior[i]] + ([0] * (OBSERVATION_LENGTH)), 'bit': ([0] * OBSERVATION_LENGTH) + [1], 'b': B[i, :], 'git': [0] * (OBSERVATION_LENGTH + 1)}), range(NUM_STATES))
+	verticesOdd = map(lambda i: Vertex(str(i) + " odd", attr={'parity': 1, 'i': i, 'ait': [0] * (OBSERVATION_LENGTH + 1), 'b': B[i, :], 'bit': ([0] * OBSERVATION_LENGTH) + [1], 'git': [0] * (OBSERVATION_LENGTH + 1)}), range(NUM_STATES))
 
 	print "set up vertices, add vertices.."
 	g = g.add_vertices(verticesOdd + verticesEven)
-	print "finshed adding vertices..starting edge appending"
 	edges = []
 	for i in range (NUM_STATES):
 		for j in range (NUM_STATES):
-			edges.append(Edge(str(i) + " even", str(j) + " odd", attr={'parity': 0, 'aij': A[i, j]}))
-			edges.append(Edge(str(i) + " odd", str(j) + " even", attr={'parity': 1, 'aij': A[i, j]}))
+			edges.append(Edge(str(i) + " even", str(j) + " odd", attr={'pr': 0, 'aij': A[i, j]}))
+			edges.append(Edge(str(i) + " odd", str(j) + " even", attr={'pr': 1, 'aij': A[i, j]}))
 
 	g = g.add_edges(edges)
 
@@ -158,6 +161,6 @@ def parallel(observationSequence):
 	#import time
 	#time.sleep(10000)
 
-print train(A, B, prior, observationSequence)
+#print train(A, B, prior, observationSequence)
 parallel(sequences[0])
 
