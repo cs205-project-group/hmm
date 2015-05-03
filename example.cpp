@@ -86,7 +86,7 @@ float normalizer = 1;
         float normalizer = normalizers[t_iteration + 1];
 	logprogress_stream << normalizers[t_iteration + 1];
      	g = g.triple_apply([t_iteration, obseqt, normalizer](edge_triple& triple) {
-            if (t_iteration % 2 == (int)triple.edge["pr"]) {
+            if (t_iteration % 2 != (int)triple.edge["pr"]) {
                 triple.source["bit"][t_iteration] += triple.target["b"][obseqt] * (((float)triple.target["bit"][t_iteration+1]) * (float)triple.edge["aij"]) / normalizer;
             }
         }, {"bit", "aij", "b", "pr"});
