@@ -62,9 +62,8 @@ def train(A, B, prior, observationSequence):
 		# also based on other HMM small state space paper
 
 		normalizers[t] = sum(alphaTable[:, t])
-        	#alphaTable[:, t] /= normalizers[t]
-	print alphaTable
-	return
+		alphaTable[:, t] /= normalizers[t]
+
 	betaTable = np.zeros((NUM_STATES, OBSERVATION_LENGTH+1))
 
 	for t in reversed(xrange(OBSERVATION_LENGTH+1)):
@@ -78,13 +77,15 @@ def train(A, B, prior, observationSequence):
 					sm += betaTable[j, t+1] * A[i, j] * B[j, y_t]	
 				betaTable[i,t] = sm
 
-		#if t < OBSERVATION_LENGTH:
-			#betaTable[:, t] /= normalizers[t+1]
+		if t < OBSERVATION_LENGTH:
+			betaTable[:, t] /= normalizers[t+1]
+
 	gammaTable = np.zeros((NUM_STATES, OBSERVATION_LENGTH + 1))
 	for i in range (NUM_STATES):
 		for t in range(OBSERVATION_LENGTH + 1):
-			print "is this 1?", np.dot(alphaTable[:, t], betaTable[:, t])
+			#print "is this 1?", np.dot(alphaTable[:, t], betaTable[:, t])
 			gammaTable[i, t] = alphaTable[i, t] * betaTable[i, t] #/ np.dot(alphaTable[:, t], betaTable[:, t])
+	print gammaTable
 	return None
 	newprior = gammaTable[:,0] # first column
 	gammaTable = gammaTable[:, 1:]
@@ -159,6 +160,6 @@ def parallel(observationSequence):
 	#import time
 	#time.sleep(10000)
 
-print train(A, B, prior, observationSequence)
 parallel(sequences[0])
+print train(A, B, prior, observationSequence)
 
