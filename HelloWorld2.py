@@ -4,7 +4,7 @@ import example2
 from sklearn import hmm
 NUM_STATES = 5
 NUM_OBSERVATIONS=5
-OBSERVATION_LENGTH=40
+OBSERVATION_LENGTH=2
 np.random.seed(seed=1)
 
 
@@ -56,7 +56,7 @@ def train(A, B, prior, observationSequence):
 			if t == 0:
 				alphaTable[i, t] = prior[i]
 			else:
-				y_t = observationSequence[t-1]
+				y_t = int(observationSequence[t-1])
 				alphaTable[i, t] = B[i, y_t] * np.dot(alphaTable[:, t-1], A[:, i])
 		# http://digital.cs.usu.edu/~cyan/CS7960/hmm-tutorial.pdf
 		# also based on other HMM small state space paper
@@ -70,13 +70,16 @@ def train(A, B, prior, observationSequence):
 	betaTable = np.zeros((NUM_STATES, OBSERVATION_LENGTH+1))
 
 	for t in reversed(xrange(OBSERVATION_LENGTH+1)):
+		if t < OBSERVATION_LENGTH:
+			print t, observationSequence[t]
 		for i in xrange(NUM_STATES):
 			if t == OBSERVATION_LENGTH:
 				betaTable[i,t] = 1
 			else:
 				sm = 0
-				y_t = observationSequence[t]
+				y_t = int(observationSequence[t])
 				for j in range(NUM_STATES):
+					print "i, j, Aij, betaTable_j_t+1, product: ", i, j, A[i,j], B[j,y_t], (betaTable[j, t+1] * A[i, j] * B[j, y_t])/ normalizers[t+1], normalizers[t+1]
 					sm += betaTable[j, t+1] * A[i, j] * B[j, y_t]	
 				betaTable[i,t] = sm
 
@@ -145,7 +148,7 @@ def parallel(A, B, prior, observationSequence):
 	print observationSequence
 	g = SGraph()
 
-	vertices = map(lambda i: Vertex(str(i), attr={'i': i, 'ait': [prior[i]] +
+	vertices = map(lambda i: Vertex(str(i) + "a", attr={'i': i, 'ait': [prior[i]] +
 		([0] * OBSERVATION_LENGTH), 'bit': ([0] * OBSERVATION_LENGTH) + [1],
 		'b': B[i, :], 'git': [0] * (OBSERVATION_LENGTH + 1)}),
 		xrange(NUM_STATES))
@@ -155,7 +158,7 @@ def parallel(A, B, prior, observationSequence):
 	edges = []
 	for i in xrange(NUM_STATES):
 		for j in xrange(NUM_STATES):
-			edges.append(Edge(str(i), str(j), attr={'aij': A[i, j]}))
+			edges.append(Edge(str(i) + "a", str(j) + "a", attr={'aij': A[i, j]}))
 
 	g = g.add_edges(edges)
 
@@ -166,7 +169,8 @@ def parallel(A, B, prior, observationSequence):
 	#g.show()
 	#import time
 	#time.sleep(10000)
-
+print "print B: "
+print B
 parallel(A, B, prior, sequences[0])
 print train(A, B, prior, observationSequence)
 
