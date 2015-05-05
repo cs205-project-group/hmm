@@ -1,6 +1,6 @@
 import graphlab
 import numpy as np
-import example
+import example2
 from sklearn import hmm
 NUM_STATES = 5
 NUM_OBSERVATIONS=5
@@ -56,13 +56,16 @@ def train(A, B, prior, observationSequence):
 			if t == 0:
 				alphaTable[i, t] = prior[i]
 			else:
-				y_t = int(observationSequence[t-1])
+				y_t = observationSequence[t-1]
 				alphaTable[i, t] = B[i, y_t] * np.dot(alphaTable[:, t-1], A[:, i])
 		# http://digital.cs.usu.edu/~cyan/CS7960/hmm-tutorial.pdf
 		# also based on other HMM small state space paper
 
 		normalizers[t] = sum(alphaTable[:, t])
 		alphaTable[:, t] /= normalizers[t]
+
+	#print alphaTable
+	#return
 
 	betaTable = np.zeros((NUM_STATES, OBSERVATION_LENGTH+1))
 
@@ -80,12 +83,14 @@ def train(A, B, prior, observationSequence):
 		if t < OBSERVATION_LENGTH:
 			betaTable[:, t] /= normalizers[t+1]
 
+	print betaTable
+	return
+
 	gammaTable = np.zeros((NUM_STATES, OBSERVATION_LENGTH + 1))
 	for i in range (NUM_STATES):
 		for t in range(OBSERVATION_LENGTH + 1):
-			#print "is this 1?", np.dot(alphaTable[:, t], betaTable[:, t])
+			print "is this 1?", np.dot(alphaTable[:, t], betaTable[:, t])
 			gammaTable[i, t] = alphaTable[i, t] * betaTable[i, t] #/ np.dot(alphaTable[:, t], betaTable[:, t])
-	print gammaTable
 	return None
 	newprior = gammaTable[:,0] # first column
 	gammaTable = gammaTable[:, 1:]
@@ -136,30 +141,32 @@ def serial():
 			print "prior error: ", np.linalg.norm(prior - secretPrior)
 
 
-def parallel(observationSequence):
+def parallel(A, B, prior, observationSequence):
 	print observationSequence
 	g = SGraph()
-	verticesEven = map(lambda i: Vertex(str(i) + " even", attr={'parity': 0, 'i': i, 'ait': [prior[i]] + ([0] * (OBSERVATION_LENGTH)), 'bit': ([0] * OBSERVATION_LENGTH) + [1], 'b': B[i, :], 'git': [0] * (OBSERVATION_LENGTH + 1)}), range(NUM_STATES))
-	verticesOdd = map(lambda i: Vertex(str(i) + " odd", attr={'parity': 1, 'i': i, 'ait': [0] * (OBSERVATION_LENGTH + 1), 'b': B[i, :], 'bit': ([0] * OBSERVATION_LENGTH) + [1], 'git': [0] * (OBSERVATION_LENGTH + 1)}), range(NUM_STATES))
+
+	vertices = map(lambda i: Vertex(str(i), attr={'i': i, 'ait': [prior[i]] +
+		([0] * OBSERVATION_LENGTH), 'bit': ([0] * OBSERVATION_LENGTH) + [1],
+		'b': B[i, :], 'git': [0] * (OBSERVATION_LENGTH + 1)}),
+		xrange(NUM_STATES))
 
 	print "set up vertices, add vertices.."
-	g = g.add_vertices(verticesOdd + verticesEven)
+	g = g.add_vertices(vertices)
 	edges = []
-	for i in range (NUM_STATES):
-		for j in range (NUM_STATES):
-			edges.append(Edge(str(i) + " even", str(j) + " odd", attr={'pr': 0, 'aij': A[i, j]}))
-			edges.append(Edge(str(i) + " odd", str(j) + " even", attr={'pr': 1, 'aij': A[i, j]}))
+	for i in xrange(NUM_STATES):
+		for j in xrange(NUM_STATES):
+			edges.append(Edge(str(i), str(j), attr={'aij': A[i, j]}))
 
 	g = g.add_edges(edges)
 
 	print "finished adding edges. calling example.fg..."
-	g = example.fp(g, observationSequence)
+	g = example2.fp(g, observationSequence)
 	print "finished calling example fg"
 	print g.vertices
 	#g.show()
 	#import time
 	#time.sleep(10000)
 
-parallel(sequences[0])
+parallel(A, B, prior, sequences[0])
 print train(A, B, prior, observationSequence)
 
