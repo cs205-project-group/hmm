@@ -50,19 +50,14 @@ double normalizer = 1;
 
     // compute alpha_i(t)
     for (t_iteration = 1; t_iteration < observation_seq.size() + 1; t_iteration++) {
-        logprogress_stream << "Time goes by";
-        logprogress_stream << t_iteration;
-        logprogress_stream << observation_seq[t_iteration - 1];
         // https://github.com/dato-code/GraphLab-Create-SDK/blob/master/sdk_example/sgraph_weighted_pagerank.cpp
         // Normalization function
         // based on documentation at https://dato.com/products/create/sdk/docs/classgraphlab_1_1gl__sframe.html
-        logprogress_stream << "Triple apply";
         obseqt = observation_seq[t_iteration - 1]; 
         // note ait is 1-indexed while observation sequence is 0 indexed
      	g = g.triple_apply([t_iteration, obseqt, normalizer](edge_triple& triple) {
             triple.target["ait"][t_iteration] += triple.target["b"][obseqt] * (((float)triple.source["ait"][t_iteration-1] / normalizer) * (float)triple.edge["aij"]);
 
-            logprogress_stream  << (triple.target["i"] - 1 + NUM_STATES) % NUM_STATES << "mod thing";
             if (triple.source["i"] == (triple.target["i"] - 1 + NUM_STATES) % NUM_STATES) {
                 triple.target["ait"][t_iteration] += triple.target["b"][obseqt] * (((float)triple.target["ait"][t_iteration-1] / normalizer) * (float)triple.target["self"]);
                 
@@ -70,8 +65,6 @@ double normalizer = 1;
 
 
         }, {"ait", "aij", "b"});
-
-        logprogress_stream << "Triple apply done";
 
         gl_sframe v = g.vertices();
 
@@ -81,8 +74,6 @@ double normalizer = 1;
         normalizers[t_iteration] = normalizer;
 
 	}
-    logprogress_stream << "Time goes by so slowly";
-	//logprogress_stream << normalizers;
 
 	// calculate beta_i(t)
     for (t_iteration = observation_seq.size() -1; t_iteration >= 0; t_iteration--) {
@@ -120,8 +111,11 @@ double normalizer = 1;
     // Thanks, Ding. I love comments. They're so helpful. 
     g = g.triple_apply([observation_seq, normalizers](edge_triple& triple) {
         for (int t = 1; t < observation_seq.size(); t++) {
-            triple.edge["xi"] += triple.source["ait"][t]*triple.edge["aij"]*triple.target["bit"][t+1]*triple.target["b"][observation_seq[t]] / normalizers[t+1];
+            triple.edge["xi"] += triple.source["ait"][t]*triple.edge["aij"]*triple.target["bit"][t+1]*triple.target["b"][observation_seq[t]] / (normalizers[t+1] * normalizers[t]);
+
         }
+
+
     },{"xi"});
     // self edges
 

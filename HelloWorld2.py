@@ -64,14 +64,9 @@ def train(A, B, prior, observationSequence):
 		normalizers[t] = sum(alphaTable[:, t])
 		alphaTable[:, t] /= normalizers[t]
 
-	#print alphaTable
-	#return
-
 	betaTable = np.zeros((NUM_STATES, OBSERVATION_LENGTH+1))
 
 	for t in reversed(xrange(OBSERVATION_LENGTH+1)):
-		if t < OBSERVATION_LENGTH:
-			print t, observationSequence[t]
 		for i in xrange(NUM_STATES):
 			if t == OBSERVATION_LENGTH:
 				betaTable[i,t] = 1
@@ -79,7 +74,6 @@ def train(A, B, prior, observationSequence):
 				sm = 0
 				y_t = int(observationSequence[t])
 				for j in range(NUM_STATES):
-					print "i, j, Aij, betaTable_j_t+1, product: ", i, j, A[i,j], B[j,y_t], (betaTable[j, t+1] * A[i, j] * B[j, y_t])/ normalizers[t+1], normalizers[t+1]
 					sm += betaTable[j, t+1] * A[i, j] * B[j, y_t]	
 				betaTable[i,t] = sm
 
@@ -100,14 +94,12 @@ def train(A, B, prior, observationSequence):
 
 
 	xiTable = np.zeros((NUM_STATES, NUM_STATES))
-	for t in range(OBSERVATION_LENGTH):
+	for t in range(1,OBSERVATION_LENGTH):
 		alpha_k_sum = np.dot(alphaTable[:, t], betaTable[:, t]) 
 		for i in xrange(NUM_STATES):
 			for j in xrange(NUM_STATES):
 				y_t1 = int(observationSequence[t])
 				xiTable[i, j] += alphaTable[i, t] * A[i, j] * betaTable[j, t+1] * B[j, y_t1] / (alpha_k_sum * normalizers[t+1])
-
-
 	print xiTable
 	return
 	newA = np.zeros((NUM_STATES, NUM_STATES))
@@ -169,6 +161,7 @@ def parallel(A, B, prior, observationSequence):
 	print "finished adding edges. calling example.fg..."
 	g = example2.fp(g, observationSequence)
 	print "finished calling example fg"
+	print g.vertices
 	print g.edges
 	#g.show()
 	#import time
