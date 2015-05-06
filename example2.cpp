@@ -115,6 +115,17 @@ double normalizer = 1;
         return vector_divide(vector_multiply(x[0], x[1]), normalizers); 
     }, flex_type_enum::LIST);
 
+    // update Xi, first edges, then self edges in vertices
+    // Kevin, note bit is 1-indexed while observation sequence is 0 indexed.
+    // Thanks, Ding. I love comments. They're so helpful. 
+    g = g.triple_apply([observation_seq, normalizers](edge_triple& triple) {
+        for (int t = 1; t < observation_seq.size(); t++) {
+            triple.edge["xi"] += triple.source["ait"][t]*triple.edge["aij"]*triple.target["bit"][t+1]*triple.target["b"][observation_seq[t]] / normalizers[t+1];
+        }
+    },{"xi"});
+    // self edges
+
+
     return g;
 }
 

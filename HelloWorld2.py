@@ -91,8 +91,8 @@ def train(A, B, prior, observationSequence):
 		for t in range(OBSERVATION_LENGTH + 1):
 			gammaTable[i, t] = alphaTable[i, t] * betaTable[i, t] / np.dot(alphaTable[:, t], betaTable[:, t])
 	newprior = gammaTable[:,0] # first column
-	print gammaTable
-	return
+	#print gammaTable
+	#return
 
 
 
@@ -104,10 +104,12 @@ def train(A, B, prior, observationSequence):
 		alpha_k_sum = np.dot(alphaTable[:, t], betaTable[:, t]) 
 		for i in xrange(NUM_STATES):
 			for j in xrange(NUM_STATES):
-				y_t1 = observationSequence[t]
+				y_t1 = int(observationSequence[t])
 				xiTable[i, j] += alphaTable[i, t] * A[i, j] * betaTable[j, t+1] * B[j, y_t1] / (alpha_k_sum * normalizers[t+1])
 
 
+	print xiTable
+	return
 	newA = np.zeros((NUM_STATES, NUM_STATES))
 	for i in range(NUM_STATES):
 		for j in range(NUM_STATES):
@@ -160,14 +162,14 @@ def parallel(A, B, prior, observationSequence):
 	for i in xrange(NUM_STATES):
 		for j in xrange(NUM_STATES):
 			if i != j:
-				edges.append(Edge(str(i) + "a", str(j) + "a", attr={'aij': A[i, j]}))
+				edges.append(Edge(str(i) + "a", str(j) + "a", attr={'aij': A[i, j], 'xi': 0.0}))
 
 	g = g.add_edges(edges)
 
 	print "finished adding edges. calling example.fg..."
 	g = example2.fp(g, observationSequence)
 	print "finished calling example fg"
-	print g.vertices
+	print g.edges
 	#g.show()
 	#import time
 	#time.sleep(10000)
