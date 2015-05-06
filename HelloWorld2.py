@@ -150,7 +150,7 @@ def parallel(A, B, prior, observationSequence):
 
 	vertices = map(lambda i: Vertex(str(i) + "a", attr={'i': i, 'ait': [prior[i]] +
 		([0] * OBSERVATION_LENGTH), 'bit': ([0] * OBSERVATION_LENGTH) + [1],
-		'b': B[i, :], 'git': [0] * (OBSERVATION_LENGTH + 1)}),
+		'b': B[i, :], 'git': [0] * (OBSERVATION_LENGTH + 1), 'self': A[i, i]}),
 		xrange(NUM_STATES))
 
 	print "set up vertices, add vertices.."
@@ -158,7 +158,8 @@ def parallel(A, B, prior, observationSequence):
 	edges = []
 	for i in xrange(NUM_STATES):
 		for j in xrange(NUM_STATES):
-			edges.append(Edge(str(i) + "a", str(j) + "a", attr={'aij': A[i, j]}))
+			if i != j:
+				edges.append(Edge(str(i) + "a", str(j) + "a", attr={'aij': A[i, j]}))
 
 	g = g.add_edges(edges)
 

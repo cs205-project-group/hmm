@@ -4,6 +4,8 @@
 #include <fstream>
 #include <assert.h>
 
+#define NUM_STATES 5
+
 using namespace graphlab;
 using namespace std;
 
@@ -59,6 +61,14 @@ double normalizer = 1;
         // note ait is 1-indexed while observation sequence is 0 indexed
      	g = g.triple_apply([t_iteration, obseqt, normalizer](edge_triple& triple) {
             triple.target["ait"][t_iteration] += triple.target["b"][obseqt] * (((float)triple.source["ait"][t_iteration-1] / normalizer) * (float)triple.edge["aij"]);
+
+            logprogress_stream  << (triple.target["i"] - 1) % NUM_STATES;
+            if (triple.source["i"] == (triple.target["i"] - 1 + NUM_STATES) % NUM_STATES) {
+                triple.target["ait"][t_iteration] += triple.target["b"][obseqt] * (((float)triple.source["ait"][t_iteration-1] / normalizer) * (float)triple.source["self"]);
+                
+            }
+
+
         }, {"ait", "aij", "b"});
 
         logprogress_stream << "Triple apply done";
