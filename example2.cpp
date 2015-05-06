@@ -89,7 +89,6 @@ double normalizer = 1;
         // Ding, note bit is 1-indexed while observation sequence is 0 indexed.
         // fuck off 
      	g = g.triple_apply([t_iteration, obseqt, normalizer](edge_triple& triple) {
-            /*
             logprogress_stream << "i, j, aij, b_t_obseqt, product";
             logprogress_stream << triple.source["i"] << " " << triple.target["i"];
 
@@ -98,7 +97,6 @@ double normalizer = 1;
             logprogress_stream << triple.target["b"][obseqt] * (((float)triple.target["bit"][t_iteration+1]) * (float)triple.edge["aij"]) / normalizer;
             logprogress_stream << normalizer;
             logprogress_stream << triple.source["bit"][t_iteration];
-            */
 			triple.source["bit"][t_iteration] += triple.target["b"][obseqt] * (((double)triple.target["bit"][t_iteration+1]) * (double)triple.edge["aij"]) / normalizer;
         }, {"bit"});
 	}
