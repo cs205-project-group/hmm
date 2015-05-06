@@ -86,17 +86,18 @@ def train(A, B, prior, observationSequence):
 		if t < OBSERVATION_LENGTH:
 			betaTable[:, t] /= normalizers[t+1]
 
-	print betaTable
-	return
-
 	gammaTable = np.zeros((NUM_STATES, OBSERVATION_LENGTH + 1))
 	for i in range (NUM_STATES):
 		for t in range(OBSERVATION_LENGTH + 1):
-			print "is this 1?", np.dot(alphaTable[:, t], betaTable[:, t])
-			gammaTable[i, t] = alphaTable[i, t] * betaTable[i, t] #/ np.dot(alphaTable[:, t], betaTable[:, t])
-	return None
+			gammaTable[i, t] = alphaTable[i, t] * betaTable[i, t] / np.dot(alphaTable[:, t], betaTable[:, t])
 	newprior = gammaTable[:,0] # first column
+	print gammaTable
+	return
+
+
+
 	gammaTable = gammaTable[:, 1:]
+
 
 	xiTable = np.zeros((NUM_STATES, NUM_STATES))
 	for t in range(OBSERVATION_LENGTH):

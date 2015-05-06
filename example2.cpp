@@ -62,9 +62,9 @@ double normalizer = 1;
      	g = g.triple_apply([t_iteration, obseqt, normalizer](edge_triple& triple) {
             triple.target["ait"][t_iteration] += triple.target["b"][obseqt] * (((float)triple.source["ait"][t_iteration-1] / normalizer) * (float)triple.edge["aij"]);
 
-            logprogress_stream  << (triple.target["i"] - 1) % NUM_STATES;
+            logprogress_stream  << (triple.target["i"] - 1 + NUM_STATES) % NUM_STATES << "mod thing";
             if (triple.source["i"] == (triple.target["i"] - 1 + NUM_STATES) % NUM_STATES) {
-                triple.target["ait"][t_iteration] += triple.target["b"][obseqt] * (((float)triple.source["ait"][t_iteration-1] / normalizer) * (float)triple.source["self"]);
+                triple.target["ait"][t_iteration] += triple.target["b"][obseqt] * (((float)triple.target["ait"][t_iteration-1] / normalizer) * (float)triple.target["self"]);
                 
             }
 
@@ -99,25 +99,21 @@ double normalizer = 1;
         // Ding, note bit is 1-indexed while observation sequence is 0 indexed.
         // fuck off 
      	g = g.triple_apply([t_iteration, obseqt, normalizer](edge_triple& triple) {
-            /*
-            logprogress_stream << "i, j, aij, b_t_obseqt, product";
-            logprogress_stream << triple.source["i"] << " " << triple.target["i"];
+		triple.source["bit"][t_iteration] += triple.target["b"][obseqt] * (((double)triple.target["bit"][t_iteration+1]) * (double)triple.edge["aij"]) / normalizer;
 
-            logprogress_stream << (float)triple.edge["aij"];
-            logprogress_stream << triple.target["b"][obseqt];
-            logprogress_stream << triple.target["b"][obseqt] * (((float)triple.target["bit"][t_iteration+1]) * (float)triple.edge["aij"]) / normalizer;
-            logprogress_stream << normalizer;
-            logprogress_stream << triple.source["bit"][t_iteration];
-            */
-			triple.source["bit"][t_iteration] += triple.target["b"][obseqt] * (((double)triple.target["bit"][t_iteration+1]) * (double)triple.edge["aij"]) / normalizer;
+            if (triple.target["i"] == (triple.source["i"] - 1 + NUM_STATES) % NUM_STATES) {
+
+		triple.source["bit"][t_iteration] += triple.source["b"][obseqt] * (((double)triple.source["bit"][t_iteration+1]) * (double)triple.source["self"]) / normalizer;
+                
+            }
+
         }, {"bit"});
 	}
-    
-    /*
+
     g.vertices()["git"] = g.vertices()[{"ait", "bit"}].apply([normalizers](const std::vector<flexible_type>& x) { 
         return vector_divide(vector_multiply(x[0], x[1]), normalizers); 
     }, flex_type_enum::LIST);
-*/
+
     return g;
 }
 
