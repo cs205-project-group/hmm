@@ -2,8 +2,8 @@ import graphlab
 import numpy as np
 import example2
 from sklearn import hmm
-NUM_STATES = 5
-NUM_OBSERVATIONS=5
+NUM_STATES = 2
+NUM_OBSERVATIONS=2
 OBSERVATION_LENGTH=2
 np.random.seed(seed=1)
 
@@ -85,13 +85,9 @@ def train(A, B, prior, observationSequence):
 		for t in range(OBSERVATION_LENGTH + 1):
 			gammaTable[i, t] = alphaTable[i, t] * betaTable[i, t] / np.dot(alphaTable[:, t], betaTable[:, t])
 	newprior = gammaTable[:,0] # first column
-	#print gammaTable
-	#return
-
-
 
 	gammaTable = gammaTable[:, 1:]
-
+	
 
 	xiTable = np.zeros((NUM_STATES, NUM_STATES))
 	for t in range(1,OBSERVATION_LENGTH):
@@ -100,12 +96,11 @@ def train(A, B, prior, observationSequence):
 			for j in xrange(NUM_STATES):
 				y_t1 = int(observationSequence[t])
 				xiTable[i, j] += alphaTable[i, t] * A[i, j] * betaTable[j, t+1] * B[j, y_t1] / (alpha_k_sum * normalizers[t+1])
-	print xiTable
-	return
+
 	newA = np.zeros((NUM_STATES, NUM_STATES))
 	for i in range(NUM_STATES):
 		for j in range(NUM_STATES):
-			newA[i, j] = xiTable[i, j] / (sum(gammaTable[i, :]))# - gammaTable[i, OBSERVATION_LENGTH-1])
+			newA[i, j] = xiTable[i, j] / (sum(gammaTable[i, :]))#  - gammaTable[i, OBSERVATION_LENGTH])
 
 	newB = np.zeros((NUM_STATES, NUM_OBSERVATIONS))
 	for i in xrange(NUM_STATES):
@@ -140,15 +135,13 @@ def serial():
 
 
 def parallel(A, B, prior, observationSequence):
-	print observationSequence
 	g = SGraph()
 
 	vertices = map(lambda i: Vertex(str(i) + "a", attr={'i': i, 'ait': [prior[i]] +
 		([0] * OBSERVATION_LENGTH), 'bit': ([0] * OBSERVATION_LENGTH) + [1],
-		'b': B[i, :], 'git': [0] * (OBSERVATION_LENGTH + 1), 'self': A[i, i]}),
+		'b': B[i, :], 'git': [0] * (OBSERVATION_LENGTH + 1), 'self': A[i, i], 'git_sum': 0.0}),
 		xrange(NUM_STATES))
 
-	print "set up vertices, add vertices.."
 	g = g.add_vertices(vertices)
 	edges = []
 	for i in xrange(NUM_STATES):
@@ -158,14 +151,10 @@ def parallel(A, B, prior, observationSequence):
 
 	g = g.add_edges(edges)
 
-	print "finished adding edges. calling example.fg..."
-	g = example2.fp(g, observationSequence)
-	print "finished calling example fg"
+	for i in range(10):
+		g = example2.fp(g, observationSequence)
+
 	print g.vertices
-	print g.edges
-	#g.show()
-	#import time
-	#time.sleep(10000)
 print "print B: "
 print B
 parallel(A, B, prior, sequences[0])
