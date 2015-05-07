@@ -4,16 +4,16 @@
 #include <fstream>
 #include <assert.h>
 
-#define NUM_STATES 5
-#define NUM_OBSERVATIONS 5
+#define NUM_STATES 1600
+#define NUM_OBSERVATIONS 8
 using namespace graphlab;
 using namespace std;
 
-std::vector<flexible_type> vector_multiply(std::vector<flexible_type> a, 
+std::vector<double> vector_multiply(std::vector<flexible_type> a, 
         std::vector<flexible_type> b) {
 
     assert(a.size() == b.size());
-    std::vector<flexible_type> result;
+    std::vector<double> result;
     result.resize(b.size());
 
     for (int i = 0; i < a.size(); i++) {
@@ -23,10 +23,10 @@ std::vector<flexible_type> vector_multiply(std::vector<flexible_type> a,
     return result;
 }
 
-std::vector<flexible_type> vector_divide(std::vector<flexible_type> a,
+std::vector<double> vector_divide(std::vector<double> a,
         std::vector<double> b) {
     assert(a.size() == b.size());
-    std::vector<flexible_type> result;
+    std::vector<double> result;
     result.resize(b.size());
 
     for (int i = 0; i < a.size(); i++) {
@@ -40,9 +40,9 @@ void get_gammas(gl_sgraph& g) {
 
 }
 
-gl_sgraph fp(gl_sgraph& g, std::vector<int> observation_seq) {
+gl_sgraph fp(gl_sgraph& g, std::vector<int> observation_seq, int n) {
 
-	logprogress_stream << "next iteration";
+	for (int i = 0; i < n; i++) {
 
 	int t_iteration;
 	int obseqt;
@@ -50,23 +50,17 @@ gl_sgraph fp(gl_sgraph& g, std::vector<int> observation_seq) {
     	int OBSEQ_SIZE = observation_seq.size();
     	std::vector<double> normalizers(OBSEQ_SIZE + 1,1);
 
-	logprogress_stream << "compute alpha_t";
     // compute alpha_i(t)
     for (t_iteration = 1; t_iteration < OBSEQ_SIZE + 1; t_iteration++) {
-	logprogress_stream << t_iteration;
 
         // https://github.com/dato-code/GraphLab-Create-SDK/blob/master/sdk_example/sgraph_weighted_pagerank.cpp
         // Normalization function
         // based on documentation at https://dato.com/products/create/sdk/docs/classgraphlab_1_1gl__sframe.html
         obseqt = observation_seq[t_iteration - 1]; 
         // note ait is 1-indexed while observation sequence is 0 indexed
-	logprogress_stream << "triple apply";
      	g = g.triple_apply([t_iteration, obseqt, normalizer](edge_triple& triple) {
-	  //   logprogress_stream << "edge apply";
-	    logprogress_stream << triple.target["git"];
 
             triple.target["ait"][t_iteration] += triple.target["b"][obseqt] * (((float)triple.source["ait"][t_iteration-1] / normalizer) * (float)triple.edge["aij"]);
-	//	logprogress_stream << "Rihanna";
             if (triple.source["i"] == (triple.target["i"] - 1 + NUM_STATES) % NUM_STATES) {
                 triple.target["ait"][t_iteration] += triple.target["b"][obseqt] * (((float)triple.target["ait"][t_iteration-1] / normalizer) * (float)triple.target["self"]);
                 
@@ -83,7 +77,6 @@ gl_sgraph fp(gl_sgraph& g, std::vector<int> observation_seq) {
         normalizers[t_iteration] = normalizer;
 
 	}
-	logprogress_stream << "ait finished";
 
 	// calculate beta_i(t)
     for (t_iteration = OBSEQ_SIZE -1; t_iteration >= 0; t_iteration--) {
@@ -108,13 +101,12 @@ gl_sgraph fp(gl_sgraph& g, std::vector<int> observation_seq) {
         }, {"bit"});
 	}
 
-	logprogress_stream << "bit finished";
         g.vertices()["git"] = g.vertices()["ait"] * g.vertices()["bit"] / normalizers;
 /*    g.vertices()["git"] = g.vertices()[{"ait", "bit"}].apply([normalizers](const std::vector<flexible_type>& x) { 
         return vector_divide(vector_multiply(x[0], x[1]), normalizers); 
-    }, flex_type_enum::LIST);*/
+    }, flex_type_enum::VECTOR);
 	logprogress_stream << "git finished";
-
+*/
     int obseq_size = OBSEQ_SIZE;
     g.vertices()["git_sum"] = g.vertices()[{"git"}].apply([obseq_size](const std::vector<flexible_type>& x) { 
 	float git_sum = 0;
@@ -169,11 +161,9 @@ gl_sgraph fp(gl_sgraph& g, std::vector<int> observation_seq) {
 	    return result;
     }, flex_type_enum::VECTOR);
 
-    g.vertices()["bit"] = g.vertices().apply([OBSEQ_SIZE](const std::vector<flexible_type>& x) {
-	std::vector<double> result(OBSEQ_SIZE + 1, 0.0);
-	result[OBSEQ_SIZE] = 1.0;
-	return result;    	
-    }, flex_type_enum::VECTOR);
+    std::vector<double> result(OBSEQ_SIZE + 1, 0.0);
+    result[OBSEQ_SIZE] = 1.0;
+    g.vertices()["bit"] = result;
 
 
     g.vertices()["ait"] = g.vertices()[{"git"}].apply([OBSEQ_SIZE](const std::vector<flexible_type>& x) {
@@ -182,17 +172,11 @@ gl_sgraph fp(gl_sgraph& g, std::vector<int> observation_seq) {
 	return result;    	
     }, flex_type_enum::VECTOR);
 
-/*    g.vertices()["git"] = g.vertices().apply([OBSEQ_SIZE](const std::vector<flexible_type>& x) {
-	std::vector<flexible_type> result(OBSEQ_SIZE + 1, 0.0);
-	return result;    	
-    }, flex_type_enum::LIST);
-*/
-
     g.vertices()["git_sum"] = 0.0;
-
+	}
     return g;
 }
 
 BEGIN_FUNCTION_REGISTRATION
-REGISTER_FUNCTION(fp, "g", "observation_seq"); // provide named parameters
+REGISTER_FUNCTION(fp, "g", "observation_seq", "n"); // provide named parameters
 END_FUNCTION_REGISTRATION

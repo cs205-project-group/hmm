@@ -2,9 +2,9 @@ import graphlab
 import numpy as np
 import example2
 from sklearn import hmm
-NUM_STATES = 2
-NUM_OBSERVATIONS=2
-OBSERVATION_LENGTH=2
+NUM_STATES = 1600
+NUM_OBSERVATIONS=8
+OBSERVATION_LENGTH=10
 np.random.seed(seed=1)
 
 
@@ -118,21 +118,14 @@ def train(A, B, prior, observationSequence):
 A, B, prior = secretA, secretB, secretPrior
 
 from graphlab import SGraph, Vertex, Edge
-
-
-
 def serial():
+	global A, B, prior
 	for observationSequence in sequences: 
-		print np.linalg.norm(A - secretA)
-		print np.linalg.norm(B - secretB)
-		print np.linalg.norm(prior - secretPrior)
-		for i in range(100):
+		for i in range(10):
 			print 'Iteration %d' %i	
 			A, B, prior =  train(A, B, prior, observationSequence)
-			print "A error: ", np.linalg.norm(A - secretA)
-			print "B error: ", np.linalg.norm(B - secretB)
-			print "prior error: ", np.linalg.norm(prior - secretPrior)
-
+	print "A", A
+	print "B", B
 
 def parallel(A, B, prior, observationSequence):
 	g = SGraph()
@@ -151,12 +144,8 @@ def parallel(A, B, prior, observationSequence):
 
 	g = g.add_edges(edges)
 
-	for i in range(10):
-		g = example2.fp(g, observationSequence)
-
+	g = example2.fp(g, observationSequence, 10)
 	print g.vertices
-print "print B: "
-print B
 parallel(A, B, prior, sequences[0])
-print train(A, B, prior, observationSequence)
+serial()
 
