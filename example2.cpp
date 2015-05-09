@@ -50,8 +50,6 @@ gl_sgraph fp(gl_sgraph& g, std::vector<int> observation_seq, int n) {
     	int OBSEQ_SIZE = observation_seq.size();
     	std::vector<double> normalizers(OBSEQ_SIZE + 1,1);
 
-	logprogress_stream << "allocation of normalizers";
-
     // compute alpha_i(t)
     for (t_iteration = 1; t_iteration < OBSEQ_SIZE + 1; t_iteration++) {
 
@@ -81,9 +79,6 @@ gl_sgraph fp(gl_sgraph& g, std::vector<int> observation_seq, int n) {
 	}
 
 
-	logprogress_stream << "done first tripleapply for forward probs";
-
-
 
 	// calculate beta_i(t)
     for (t_iteration = OBSEQ_SIZE -1; t_iteration >= 0; t_iteration--) {
@@ -107,11 +102,8 @@ gl_sgraph fp(gl_sgraph& g, std::vector<int> observation_seq, int n) {
 
         }, {"bit"});
 	}
-	logprogress_stream << "done first tripleapply for backwards probs";
 
         g.vertices()["git"] = g.vertices()["ait"] * g.vertices()["bit"] / normalizers;
-
-	logprogress_stream << "done gone git";
 
 
     int obseq_size = OBSEQ_SIZE;
@@ -122,10 +114,6 @@ gl_sgraph fp(gl_sgraph& g, std::vector<int> observation_seq, int n) {
 	}
 	return git_sum;
     }, flex_type_enum::FLOAT);
-
-	logprogress_stream << " get sum";
-
-	logprogress_stream << "git_sum finished";
 
     // update Xi, first edges, then self edges in vertices
     // Kevin, note bit is 1-indexed while observation sequence is 0 indexed.
