@@ -21,7 +21,11 @@ source activate graphlab
 module load legacy
 module load centos6/gcc-4.8.0
 
+# compile 
+g++ -std=c++11 example2.cpp -I ~/graphlab-sdk -shared -fPIC -o example2.so
+
+# which python are we using
 which python
 
+# actually run the program
 python HelloWorld2.py
-
