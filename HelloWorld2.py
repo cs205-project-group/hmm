@@ -7,6 +7,20 @@ NUM_OBSERVATIONS=8
 OBSERVATION_LENGTH=10
 np.random.seed(seed=1)
 
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--NUM_STATES", metavar="NUM_STATES", type=int, 
+                   help="num states", default=4)
+parser.add_argument("--NUM_OBSERVATIONS", metavar="NUM_OBSERVATIONS", type=int,
+                   help="num observations", default=4)
+parser.add_argument("--OBSERVATION_LENGTH", metavar="OBSERVATION_LENGTH", type=int, 
+                   help="observation length", default=16)
+
+args = parser.parse_args()
+OBSERVATION_LENGTH = args.OBSERVATION_LENGTH
+NUM_STATES = args.NUM_STATES
+NUM_OBSERVATIONS = args.NUM_OBSERVATIONS
 
 def randomHMM():
 	A = np.random.rand(NUM_STATES, NUM_STATES)
