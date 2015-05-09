@@ -143,7 +143,7 @@ def parallel(A, B, prior, observationSequence):
 				edges.append(Edge(str(i) + "a", str(j) + "a", attr={'aij': A[i, j], 'xi': 0.0}))
 
 	g = g.add_edges(edges)
-
+	print observationSequence
 	g = example2.fp(g, observationSequence, 1)
 	print g.vertices
 parallel(A, B, prior, sequences[0])

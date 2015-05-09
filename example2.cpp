@@ -50,6 +50,8 @@ gl_sgraph fp(gl_sgraph& g, std::vector<int> observation_seq, int n) {
     	int OBSEQ_SIZE = observation_seq.size();
     	std::vector<double> normalizers(OBSEQ_SIZE + 1,1);
 
+	logprogress_stream << "allocation of normalizers";
+
     // compute alpha_i(t)
     for (t_iteration = 1; t_iteration < OBSEQ_SIZE + 1; t_iteration++) {
 
@@ -78,6 +80,11 @@ gl_sgraph fp(gl_sgraph& g, std::vector<int> observation_seq, int n) {
 
 	}
 
+
+	logprogress_stream << "done first tripleapply for forward probs";
+
+
+
 	// calculate beta_i(t)
     for (t_iteration = OBSEQ_SIZE -1; t_iteration >= 0; t_iteration--) {
         // https://github.com/dato-code/GraphLab-Create-SDK/blob/master/sdk_example/sgraph_weighted_pagerank.cpp
@@ -100,8 +107,13 @@ gl_sgraph fp(gl_sgraph& g, std::vector<int> observation_seq, int n) {
 
         }, {"bit"});
 	}
+	logprogress_stream << "done first tripleapply for backwards probs";
 
         g.vertices()["git"] = g.vertices()["ait"] * g.vertices()["bit"] / normalizers;
+
+	logprogress_stream << "done gone git";
+
+
 /*    g.vertices()["git"] = g.vertices()[{"ait", "bit"}].apply([normalizers](const std::vector<flexible_type>& x) { 
         return vector_divide(vector_multiply(x[0], x[1]), normalizers); 
     }, flex_type_enum::VECTOR);
@@ -116,6 +128,7 @@ gl_sgraph fp(gl_sgraph& g, std::vector<int> observation_seq, int n) {
 	return git_sum;
     }, flex_type_enum::FLOAT);
 
+	logprogress_stream << " get sum";
 
 	logprogress_stream << "git_sum finished";
 
