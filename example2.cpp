@@ -139,7 +139,7 @@ gl_sgraph fp(gl_sgraph& g, std::vector<int> observation_seq, int n) {
     }, flex_type_enum::FLOAT);
 
     // self edges
-    g.vertices()["b"] = g.vertices()[{"git"}].apply([observation_seq](const std::vector<flexible_type>& x) {
+    g.vertices()["b"] = g.vertices()["git"].apply([observation_seq](const std::vector<flexible_type>& x) {
 	    std::vector<double> result;
 	    result.resize(NUM_OBSERVATIONS);
 	    for (int i = 0; i < NUM_OBSERVATIONS; i++) {
@@ -162,7 +162,7 @@ gl_sgraph fp(gl_sgraph& g, std::vector<int> observation_seq, int n) {
     g.vertices()["bit"] = result;
 
 
-    g.vertices()["ait"] = g.vertices()[{"git"}].apply([OBSEQ_SIZE](const std::vector<flexible_type>& x) {
+    g.vertices()["ait"] = g.vertices()["git"].apply([OBSEQ_SIZE](const std::vector<flexible_type>& x) {
 	std::vector<double> result(OBSEQ_SIZE + 1, 0.0);
 	result[0] = x[0][0];
 	return result;    	
