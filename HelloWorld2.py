@@ -1,7 +1,4 @@
-import graphlab
 import numpy as np
-import example2
-from sklearn import hmm
 import time
 import argparse
 
@@ -17,8 +14,7 @@ parser.add_argument("--NUM_OBSERVATIONS", metavar="NUM_OBSERVATIONS", type=int,
                    help="num observations", default=4)
 parser.add_argument("--OBSERVATION_LENGTH", metavar="OBSERVATION_LENGTH", type=int, 
                    help="observation length", default=16)
-parser.add_argument("--niters", metavar="niters", type=int, default=5,
-help="Number of iterations to run")
+parser.add_argument("--niters", metavar="niters", type=int, default=5, help="Number of iterations to run")
 
 args = parser.parse_args()
 OBSERVATION_LENGTH = args.OBSERVATION_LENGTH
@@ -140,6 +136,8 @@ def serial():
 	print "B", B
 
 
+import graphlab
+import example2
 from graphlab import SGraph, Vertex, Edge
 
 def parallel(A, B, prior, observationSequence):
