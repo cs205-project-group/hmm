@@ -1,0 +1,64 @@
+Log on to Odyssey with cs205uXX account
+    ssh cs205uXX@login.rc.fas.harvard.edu
+
+Before you're starting, make sure you don't have something like
+
+    source new-modules.sh
+
+inside your ~/.bashrc. If you do just comment it out (you can add it back later
+when we're done installing).
+
+Set up your own python environment (source:
+https://rc.fas.harvard.edu/resources/documentation/software-on-odyssey/python/)
+
+    source new-modules.sh
+    module load python/2.7.6-fasrc01
+    conda create -n graphlab --clone="$PYTHON_HOME"
+
+wait a while... this will create a new environment in ~/envs/graphlab
+
+Then you can load the environment by using:
+
+    source activate graphlab
+
+To deactivate:
+
+    source deactivate
+
+Activate the new environment, and then install graphlab dependencies and
+graphlab itself:
+
+    conda install boto
+    conda install tornado
+    conda install requests
+    conda install colorama
+    conda install pyasn1
+    conda install dateutil
+
+    pip install graphlab-create
+
+
+
+How to install Graphlab Create SDK:
+
+Let's get back to our home directory and clone:
+
+    cd
+    git clone https://github.com/dato-code/GraphLab-Create-SDK graphlab-sdk
+
+Build examples:
+
+    module load centos6/gcc-4.8.0
+    cd graphlab-sdk && make
+
+
+Code to compile the example stuff:
+    module load centos6/gcc-4.8.0
+    g++ -std=c++11 example2.cpp -I ../graphlab-sdk -shared -fPIC -o example2.so
+
+If you can't load the gcc-4.8.0 module, you might still have the new modules
+enabled. In that case, run
+
+    module load legacy
+
+And then you should be able to load gcc-4.8.0

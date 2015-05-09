@@ -1,0 +1,6 @@
+Linux:
+g++ -std=c++11 example.cpp -I /path/to/graphlab-sdk -shared -fPIC -o example.so
+
+Mac:
+clang++ -stdlib=libc++ -std=c++11 example.cpp -I /path/to/graphlab-sdk -shared
+-fPIC -o example.so -undefined dynamic_lookup
