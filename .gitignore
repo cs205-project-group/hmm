@@ -1,2 +1,6 @@
 *.swp
 *.so
+*.aux
+*.pdf
+*.out
+*.log
