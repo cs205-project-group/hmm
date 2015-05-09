@@ -2,13 +2,14 @@ import graphlab
 import numpy as np
 import example2
 from sklearn import hmm
-NUM_STATES = 4
-NUM_OBSERVATIONS=8
-OBSERVATION_LENGTH=10
-np.random.seed(seed=1)
-
+import time
 import argparse
 
+# set random seed
+np.random.seed(seed=1)
+
+
+# read arguments from command line
 parser = argparse.ArgumentParser()
 parser.add_argument("--NUM_STATES", metavar="NUM_STATES", type=int, 
                    help="num states", default=4)
@@ -16,13 +17,17 @@ parser.add_argument("--NUM_OBSERVATIONS", metavar="NUM_OBSERVATIONS", type=int,
                    help="num observations", default=4)
 parser.add_argument("--OBSERVATION_LENGTH", metavar="OBSERVATION_LENGTH", type=int, 
                    help="observation length", default=16)
+parser.add_argument("--niters", metavar="niters", type=int, default=5,
+help="Number of iterations to run")
 
 args = parser.parse_args()
 OBSERVATION_LENGTH = args.OBSERVATION_LENGTH
 NUM_STATES = args.NUM_STATES
 NUM_OBSERVATIONS = args.NUM_OBSERVATIONS
+NITERS = args.niters
 
 def randomHMM():
+	# generate normalized, uniformly random parameters for HMM
 	A = np.random.rand(NUM_STATES, NUM_STATES)
 	# normalization from
 	# http://stackoverflow.com/questions/8904694/how-to-normalize-a-2-dimensional-numpy-array-in-python-less-verbose
@@ -34,6 +39,7 @@ def randomHMM():
 	return (A, B, prior)
 
 def uniformHMM():
+	# generate uniform (e.g. 1/NUM_STATES) parameters for HMM
 	A = np.ones((NUM_STATES, NUM_STATES))
 	# normalization from
 	# http://stackoverflow.com/questions/8904694/how-to-normalize-a-2-dimensional-numpy-array-in-python-less-verbose
@@ -47,19 +53,9 @@ def uniformHMM():
 
 	return (A, B, prior)
 
-secretA, secretB, secretPrior = randomHMM()
-#secretB = np.identity(NUM_STATES)
-
-curState = np.random.choice(NUM_STATES, p=secretPrior)
-sequences = []
-for _ in range (1):
-	observationSequence = np.zeros(OBSERVATION_LENGTH)
-	for i in xrange(OBSERVATION_LENGTH):
-		observationSequence[i] = np.random.choice(NUM_OBSERVATIONS, p=secretB[curState, :])
-		curState = np.random.choice(NUM_STATES, p=secretA[curState, :])
-	sequences.append(observationSequence)
 
 def train(A, B, prior, observationSequence):
+	# one iteration of serial training algorithm for HMM
 	alphaTable = np.zeros((NUM_STATES, OBSERVATION_LENGTH +1))
 	# http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.334.1331&rep=rep1&type=pdf
 	normalizers = np.zeros(OBSERVATION_LENGTH+1)
@@ -97,7 +93,8 @@ def train(A, B, prior, observationSequence):
 	gammaTable = np.zeros((NUM_STATES, OBSERVATION_LENGTH + 1))
 	for i in range (NUM_STATES):
 		for t in range(OBSERVATION_LENGTH + 1):
-			gammaTable[i, t] = alphaTable[i, t] * betaTable[i, t] / np.dot(alphaTable[:, t], betaTable[:, t])
+			gammaTable[i, t] = (alphaTable[i, t] * betaTable[i, t] /
+			np.dot(alphaTable[:, t], betaTable[:, t]))
 	newprior = gammaTable[:,0] # first column
 
 	gammaTable = gammaTable[:, 1:]
@@ -109,12 +106,13 @@ def train(A, B, prior, observationSequence):
 		for i in xrange(NUM_STATES):
 			for j in xrange(NUM_STATES):
 				y_t1 = int(observationSequence[t])
-				xiTable[i, j] += alphaTable[i, t] * A[i, j] * betaTable[j, t+1] * B[j, y_t1] / (alpha_k_sum * normalizers[t+1])
+				xiTable[i, j] += (alphaTable[i, t] * A[i, j] * betaTable[j, t+1]
+						* B[j, y_t1] / (alpha_k_sum * normalizers[t+1]))
 
 	newA = np.zeros((NUM_STATES, NUM_STATES))
 	for i in range(NUM_STATES):
 		for j in range(NUM_STATES):
-			newA[i, j] = xiTable[i, j] / (sum(gammaTable[i, :]))#  - gammaTable[i, OBSERVATION_LENGTH])
+			newA[i, j] = xiTable[i, j] / (sum(gammaTable[i, :]))
 
 	newB = np.zeros((NUM_STATES, NUM_OBSERVATIONS))
 	for i in xrange(NUM_STATES):
@@ -129,37 +127,73 @@ def train(A, B, prior, observationSequence):
 
 	return(newA, newB, newprior)
 
-A, B, prior = secretA, secretB, secretPrior
 
-from graphlab import SGraph, Vertex, Edge
+
 def serial():
+	# serial training of HMMs
 	global A, B, prior
 	for observationSequence in sequences: 
-		for i in range(10):
-			print 'Iteration %d' %i	
+		for i in range(NITERS):
+			#print 'Iteration %d' %i	
 			A, B, prior =  train(A, B, prior, observationSequence)
 	print "A", A
 	print "B", B
 
+
+from graphlab import SGraph, Vertex, Edge
+
 def parallel(A, B, prior, observationSequence):
+	# parallel HMM training with graphlab
 	g = SGraph()
 
-	vertices = map(lambda i: Vertex(str(i) + "a", attr={'i': i, 'ait': [prior[i]] +
-		([0] * OBSERVATION_LENGTH), 'bit': ([0] * OBSERVATION_LENGTH) + [1],
-		'b': B[i, :], 'git': [0] * (OBSERVATION_LENGTH + 1), 'self': A[i, i], 'git_sum': 0.0}),
-		xrange(NUM_STATES))
+	vertices = map(lambda i: Vertex(str(i) + "a", 
+		attr={'i': i, 'ait': [prior[i]] + ([0] * OBSERVATION_LENGTH), 
+			'bit': ([0] * OBSERVATION_LENGTH) + [1], 
+			'b': B[i, :], 'git': [0] * (OBSERVATION_LENGTH + 1), 
+			'self': A[i, i], 'git_sum': 0.0}), xrange(NUM_STATES))
 
 	g = g.add_vertices(vertices)
 	edges = []
 	for i in xrange(NUM_STATES):
 		for j in xrange(NUM_STATES):
 			if i != j:
-				edges.append(Edge(str(i) + "a", str(j) + "a", attr={'aij': A[i, j], 'xi': 0.0}))
+				edges.append(Edge(str(i) + "a", str(j) + "a", 
+					attr={'aij': A[i, j], 'xi': 0.0}))
 
 	g = g.add_edges(edges)
-	print observationSequence
-	g = example2.fp(g, observationSequence, 10)
+	g = example2.fp(g, observationSequence, NITERS)
 	print g.vertices
-parallel(A, B, prior, sequences[0])
-serial()
 
+# make sure you run parallel before serial, because serial mutates the
+# parameters
+# the true parameters
+secretA, secretB, secretPrior = randomHMM()
+
+# simulate the sequence
+curState = np.random.choice(NUM_STATES, p=secretPrior)
+sequences = []
+for _ in range (1):
+	observationSequence = np.zeros(OBSERVATION_LENGTH)
+	for i in xrange(OBSERVATION_LENGTH):
+		observationSequence[i] = np.random.choice(NUM_OBSERVATIONS, 
+				p=secretB[curState, :])
+		curState = np.random.choice(NUM_STATES, p=secretA[curState, :])
+	sequences.append(observationSequence)
+
+# starting parameters
+A, B, prior = randomHMM()
+
+parallel_start = time.time()
+parallel(A, B, prior, sequences[0])
+parallel_elapsed = time.time() - parallel_start
+
+serial_start = time.time()
+serial()
+serial_elapsed = time.time() - serial_start
+
+print("Serial time: " + str(serial_elapsed))
+print("Parallel time: " + str(parallel_elapsed))
+
+#NUM_STATES, NUM_OBSERVATIONS, OBSERVATION_LENGTH, serial_elapsed, parallel_elapsed 
+print("%d,%d,%d,%e,%e" %(NUM_STATES, NUM_OBSERVATIONS, OBSERVATION_LENGTH,
+	serial_elapsed, parallel_elapsed))
