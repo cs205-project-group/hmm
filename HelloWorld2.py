@@ -2,7 +2,7 @@ import graphlab
 import numpy as np
 import example2
 from sklearn import hmm
-NUM_STATES = 1600
+NUM_STATES = 4
 NUM_OBSERVATIONS=8
 OBSERVATION_LENGTH=10
 np.random.seed(seed=1)
@@ -144,7 +144,7 @@ def parallel(A, B, prior, observationSequence):
 
 	g = g.add_edges(edges)
 
-	g = example2.fp(g, observationSequence, 10)
+	g = example2.fp(g, observationSequence, 1)
 	print g.vertices
 parallel(A, B, prior, sequences[0])
 serial()

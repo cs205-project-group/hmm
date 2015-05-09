@@ -4,7 +4,7 @@
 #include <fstream>
 #include <assert.h>
 
-#define NUM_STATES 1600
+#define NUM_STATES 4
 #define NUM_OBSERVATIONS 8
 using namespace graphlab;
 using namespace std;
