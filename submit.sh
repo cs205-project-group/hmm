@@ -6,13 +6,13 @@ do
     do
         for OBSLEN in 100 #1000 10000
         do
-            echo "${CORES}, ${NUM_OBSERVATIONS}, ${OBSLEN}"
+            echo "Cores: ${CORES}, NUM_STATES/NUM_OBSERVATIONS: ${NUM_OBSERVATIONS}, OBSERVATION_LENGTH: ${OBSLEN}"
             export CORES NUM_OBSERVATIONS OBSLEN
             sbatch -o hmm_c${CORES}_n${NUM_OBSERVATIONS}_l${OBSLEN}.out \
                 -e hmm_c${CORES}_n${NUM_OBSERVATIONS}_l${OBSLEN}.err \
                 --job-name=hmm_c${CORES}_n${NUM_OBSERVATIONS}_l${OBSLEN} \
-                -n ${CORES}
-                submit.sbatch
+                -n ${CORES} submit.sbatch
+            echo "Done submitting"
             sleep 1 # pause to be kind to the scheduler
         done
     done
