@@ -1,0 +1,34 @@
+\ProvidesPackage{mystyle}
+% Possible packages - uncomment to use
+\usepackage{amsmath}       % Needed for math stuff
+%\usepackage{lastpage}      % Finds last page
+\usepackage{amssymb}       % Needed for some math symbols
+\usepackage{graphicx}      % Needed for graphics
+\usepackage[usenames,dvipsnames]{xcolor} % Needed for graphics and color
+%\usepackage{setspace}      % Needed to set single/double spacing
+%\usepackage{float}         % Better placement of figures & tables
+\usepackage{hyperref}           % Can have actual links
+\usepackage{mathpazo}      % Palatino font
+\usepackage{microtype}      % Better text justification and spacing
+
+%Suggested by TeXworks
+\usepackage[utf8]{inputenc} % set input encoding (not needed with XeLaTeX)
+\usepackage{verbatim}      % lets you do verbatim text
+\usepackage{multicol}
+ 
+% Sets the page margins to 1 inch each side
+\usepackage[margin=1in]{geometry}
+\geometry{letterpaper}
+
+% Definitions to make our lives easier
+\def\R{{\mathbb R}}
+\def\N{{\mathbb N}}
+\def\Q{{\mathbb Q}}
+\def\P{{\mathbb P}}
+\def\E{{\mathbb E}}
+\def\F{{\mathcal F}}
+
+\newcommand{\vect}[1]{\boldsymbol{#1}}
+
+% No space after periods
+\frenchspacing
