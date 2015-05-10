@@ -1,6 +1,8 @@
 \section{Approach and Secret Weapon}
 
 \subsection{Serial Implementation}
+We first implemented Baum-Welch in python with python package numpy. Our initial implementation ran into serious underflow issues from the calculations of $\alpha$'s and $\beta$'s due to multiplying probabilities together. We solve this by following the methods detailed in \cite{normalizer}. 
+
 
 \subsection{Failed Parallel Attempt}
 We first approached the challenge by representing the Hidden Markov model computation as one over a bipartite graph.  Consider the Markov chain that underlies the hidden Markov model.  We created two vertices for each state in this chain, one designated the ``odd vertex" and one designated the ``even vertex".  Call original vertex $u$'s two vertices $u_{odd}$ and $u_{even}$. For each original edge $(u, v)$ in the hidden Markov model, we created two edges in our bipartite graph, $(u_{odd}, v_{even})$, $(u_{even}, v_{odd})$.   Each vertex $v$, regardless of being an odd or even vertex, stores: 
