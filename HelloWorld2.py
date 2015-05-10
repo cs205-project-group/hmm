@@ -159,7 +159,7 @@ def parallel(A, B, prior, observationSequence):
 					attr={'aij': A[i, j], 'xi': 0.0}))
 
 	g = g.add_edges(edges)
-	g = example2.fp(g, observationSequence, NITERS)
+	g = example2.fp(g, observationSequence, NITERS, NUM_STATES, NUM_OBSERVATIONS)
 	print g.vertices
 
 # make sure you run parallel before serial, because serial mutates the

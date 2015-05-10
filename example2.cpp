@@ -4,8 +4,6 @@
 #include <fstream>
 #include <assert.h>
 
-#define NUM_STATES 4
-#define NUM_OBSERVATIONS 8
 using namespace graphlab;
 using namespace std;
 
@@ -40,7 +38,7 @@ void get_gammas(gl_sgraph& g) {
 
 }
 
-gl_sgraph fp(gl_sgraph& g, std::vector<int> observation_seq, int n) {
+gl_sgraph fp(gl_sgraph& g, std::vector<int> observation_seq, int n, int NUM_STATES, int NUM_OBSERVATIONS) {
 
 	for (int i = 0; i < n; i++) {
 
@@ -58,7 +56,7 @@ gl_sgraph fp(gl_sgraph& g, std::vector<int> observation_seq, int n) {
         // based on documentation at https://dato.com/products/create/sdk/docs/classgraphlab_1_1gl__sframe.html
         obseqt = observation_seq[t_iteration - 1]; 
         // note ait is 1-indexed while observation sequence is 0 indexed
-     	g = g.triple_apply([t_iteration, obseqt, normalizer](edge_triple& triple) {
+     	g = g.triple_apply([t_iteration, obseqt, normalizer, NUM_STATES](edge_triple& triple) {
 
             triple.target["ait"][t_iteration] += triple.target["b"][obseqt] * (((float)triple.source["ait"][t_iteration-1] / normalizer) * (float)triple.edge["aij"]);
             if (triple.source["i"] == (triple.target["i"] - 1 + NUM_STATES) % NUM_STATES) {
@@ -90,7 +88,7 @@ gl_sgraph fp(gl_sgraph& g, std::vector<int> observation_seq, int n) {
         double normalizer = normalizers[t_iteration + 1];
         // Ding, note bit is 1-indexed while observation sequence is 0 indexed.
         // fuck off 
-     	g = g.triple_apply([t_iteration, obseqt, normalizer](edge_triple& triple) {
+     	g = g.triple_apply([t_iteration, obseqt, normalizer, NUM_STATES](edge_triple& triple) {
 
 		triple.source["bit"][t_iteration] += triple.target["b"][obseqt] * (((double)triple.target["bit"][t_iteration+1]) * (double)triple.edge["aij"]) / normalizer;
 
@@ -142,7 +140,7 @@ gl_sgraph fp(gl_sgraph& g, std::vector<int> observation_seq, int n) {
     }, flex_type_enum::FLOAT);
 
     // self edges
-    g.vertices()["b"] = g.vertices()["git"].apply([observation_seq](const std::vector<flexible_type>& x) {
+    g.vertices()["b"] = g.vertices()["git"].apply([NUM_OBSERVATIONS, observation_seq](const std::vector<flexible_type>& x) {
 	    std::vector<double> result;
 	    result.resize(NUM_OBSERVATIONS);
 	    for (int i = 0; i < NUM_OBSERVATIONS; i++) {
@@ -177,5 +175,5 @@ gl_sgraph fp(gl_sgraph& g, std::vector<int> observation_seq, int n) {
 }
 
 BEGIN_FUNCTION_REGISTRATION
-REGISTER_FUNCTION(fp, "g", "observation_seq", "n"); // provide named parameters
+REGISTER_FUNCTION(fp, "g", "observation_seq", "n", "NUM_STATES", "NUM_OBSERVATIONS"); // provide named parameters
 END_FUNCTION_REGISTRATION
