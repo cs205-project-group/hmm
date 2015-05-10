@@ -1,7 +1,10 @@
 \section{Approach and Secret Weapon}
 
 \subsection{Serial Implementation}
-We first implemented Baum-Welch in python with python package numpy. Our initial implementation ran into serious underflow issues from the calculations of $\alpha$'s and $\beta$'s due to multiplying probabilities together. We solve this by following the methods detailed in \cite{normalizer}. We normalize by scaling $\alpha_i(t)$'s such that they sum up to $1$ over $i$'s --- that is over all states. So 
+We first implemented Baum-Welch in python with python package numpy. Our initial
+implementation ran into serious underflow issues from the calculations of
+$\alpha$'s and $\beta$'s due to multiplying probabilities together. We solve
+this by following the methods detailed by Zhai~\cite{normalizer}. We normalize by scaling $\alpha_i(t)$'s such that they sum up to $1$ over $i$'s --- that is over all states. So 
 
 \begin{equation} 
 \sum_{i=1}^N \hat{\alpha}_t(i) = 1
@@ -26,7 +29,8 @@ We can define
 then the formulas for $\gamma$'s and $\xi$'s remain the same since the normalizers cancel out.
 \\
 \\
-We verify the correctness of our implementation with the library HMM function in Matlab, and the outputs match exactly at every step, giving us confidence in our implementation. 
+We verify the correctness of our implementation with the library HMM function in
+Matlab~\cite{matlab}, and the outputs match exactly at every step, giving us confidence in our implementation. 
 
 
 \subsection{Failed Parallel Attempt}

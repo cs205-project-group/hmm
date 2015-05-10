@@ -1,3 +1,10 @@
 \section{Introduction}
 
-Hidden Markov models (HMM) are often used to model time-series data for both discrete and continuous data. In this paper, we will focus on discrete data. The parameters to a hidden Markov models are most commonly learned from the Baum-Welch - an Expectation Maximization (EM) algorithm. Unfortunately, the Baum-Welch algorithm is quadratic in number of states. A parallel implementation of the EM algorithm along the state axis would greatly improve scalability. Graph based platforms are particularly suited to EM algorithms, and our project uses GraphLab, a platform created by Dato for implementing graph based parallelizing schemes. 
+Hidden Markov models (HMM) are often used to model time-series data for both
+discrete and continuous data. In this paper, we will focus on discrete data. The
+parameters to a hidden Markov models are most commonly learned from the
+Baum-Welch---an Expectation Maximization (EM) algorithm. Unfortunately, the
+Baum-Welch algorithm is quadratic in number of states. A parallel implementation
+of the EM algorithm along the state axis would greatly improve scalability.
+Graph based platforms are particularly suited to EM algorithms, and our project
+uses GraphLab~\cite{graphlab}, a platform created by Dato~\cite{dato} for implementing graph based parallelizing schemes. 
