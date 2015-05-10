@@ -3,24 +3,24 @@
 \subsection{Serial Implementation}
 We first implemented Baum-Welch in python with python package numpy. Our initial implementation ran into serious underflow issues from the calculations of $\alpha$'s and $\beta$'s due to multiplying probabilities together. We solve this by following the methods detailed in \cite{normalizer}. We normalize by scaling $\alpha_i(t)$'s such that they sum up to $1$ over $i$'s --- that is over all states. So 
 
-\begin{equation} \label{alpha}
+\begin{equation} 
 \sum_{i=1}^N \hat{\alpha}_t(i) = 1
 \end{equation}
 
 and we want to define the normalizers $\eta_k$ such that
 
-\begin{equation} \label{alpha}
+\begin{equation} 
 \hat{\alpha}_t(i) = \alpha_i(t) \prod_{k=1}^t 1/\eta_k
 \end{equation}
 
 then 
-\begin{equation} \label{alpha}
+\begin{equation}
 \prod_{k=1}^t \eta_k =\sum_{i=1}^N \alpha_t(i)
 \end{equation}
 
 We can define 
-\begin{equation} \label{alpha}
-\hat{\beta}_{i=1}(t) = \beta_{i=1}(t) \prod_{k=t+1}^T 1/\eta_k
+\begin{equation} 
+\hat{\beta}_{i}(t) = \beta_{i}(t) \prod_{k=t+1}^T 1/\eta_k
 \end{equation}
 
 then the formulas for $\gamma$'s and $\xi$'s remain the same since the normalizers cancel out.
