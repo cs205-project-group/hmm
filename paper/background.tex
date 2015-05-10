@@ -9,28 +9,42 @@ We can thus capture all the information about an HMM with $\theta = (A, B, \pi)$
 Let $(X_1, X_2, \ldots, X_N)$ denote the $N$ states and $\bold{O} = \{O_1, O_2, \ldots, O_T\}$ the $T$ observed outputs. The Baum-Welch uses expectation-maximization to find the maximum likelihood estimate.
 
 We set $\theta  =  (A, B, \pi)$ randomly. For the forward procedure, we define $\alpha_i(t) = P(O_1 = o_t, \ldots, O_t = o_t | \theta)$. That is, the probability of observing the first $t$ outputs given a set of parameters. We can then iteratively find:
-$$\alpha_i(t+1) =  b_{jo_1}\sum_{i=1}^{N} \alpha_i(t)a_{ij}$$
+
+\begin{equation} \label{alpha}
+\alpha_i(t+1) =  b_{jo_1}\sum_{i=1}^{N} \alpha_i(t)a_{ij}
+\end{equation}
+
 For backwards procedure, we define $\beta_i(t) = P(O_{t+1} = o_{t+1}, \ldots, O_T = o_T | \theta)$, the probability of observing the last $T - t$ outputs given a set of parameters. We can find $\beta$ iteratively by:
-$$\beta_i(t) = \sum_{i=1}^N \beta_j(t+1)a_{ij}b_j(o_{t+1})$$.
+\begin{equation} \label{beta}
+\beta_i(t) = \sum_{i=1}^N \beta_j(t+1)a_{ij}b_j(o_{t+1})
+\end{equation}
 
 Now define $\gamma_i(t)$ to be the probability of being in state $i$ given $\bold{O}$ and parameter $\theta$. We can update $\gamma_i(t)$ as:
 
-$$\gamma_i(t) = P(X_t = i | \bold{O}, \theta) = \frac{\alpha_i(t) \beta_i(t)}{\sum_{j=1}^N \alpha_j(t) \beta_j(t)}$$
+\begin{equation} \label{gamma}
+\gamma_i(t) = P(X_t = i | \bold{O}, \theta) = \frac{\alpha_i(t) \beta_i(t)}{\sum_{j=1}^N \alpha_j(t) \beta_j(t)}
+\end{equation}
 
 We define $\xi_{ij}(t)$ to be the probability of being in state $i$ at time $t$ and state $j$ at time $t+1$ given $\bold{O}$ and parameter $\theta$. 
-$$
+\begin{equation}\label{xi}
 \begin{aligned}
 \xi_{ij}(t) &= P(X_t = i, X_{t+1} = j | \bold{O}, \theta)  \\
 &=\frac{\alpha_i(t) a_{ij} \beta_j(t+1)b_{jo_{t+1}}}{\sum_{k=1}^N \alpha_k(t) \beta_k(t)}
 \end{aligned}
-$$ 
+\end{equation}
 
 We can now update our parameters. We update $\pi$ by:
-$$\pi_i^* = \gamma_i(t)$$
+\begin{equation}\label{pi}
+\pi_i^* = \gamma_i(t)
+\end{equation}
 We update $A$ by:
-$$a^*_{ij} = \frac{\sum_{t=1}^{T-1}\xi_{ij}(t)}{\sum_{t=1}^{T-1}\gamma_i(t)}$$
+\begin{equation}\label{a}
+a^*_{ij} = \frac{\sum_{t=1}^{T-1}\xi_{ij}(t)}{\sum_{t=1}^{T-1}\gamma_i(t)}
+\end{equation}
 We update $B$ by:
-$$b^*_{iv_k} = \frac{\sum_{t=1}^{T}1_{o_t = v_k} \gamma_i(t)}{\sum_{t=1}^T \gamma_i(t)}$$ 
+\begin{equation}\label{b}
+b^*_{iv_k} = \frac{\sum_{t=1}^{T}1_{o_t = v_k} \gamma_i(t)}{\sum_{t=1}^T \gamma_i(t)}
+\end{equation}
 where $1_{o_t = v_k}$ is $1$ if $o_t = v_k$ and $0$ otherwise. 
 
 These steps are repeated until the parameters converge. 
