@@ -1,31 +1,19 @@
 #!/bin/bash 
 
-#SBATCH -J graphlab # Name of your run
-#SBATCH -t 900 #Runtime in minutes 
-#SBATCH -p holyseasgpu #Partition to submit to 
-#SBATCH -n 2 # number of CPUs
-
-#SBATCH -o graphlab.out  # Name of file to store output
-#SBATCH -e graphlab.err  # Name of file to store stderr
-
-#SBATCH --mail-user=your email here # Add your email address to be
-                                                # notified when
-#SBATCH --mail-type=BEGIN # The run began
-#SBATCH --mail-type=END # The run ended
-#SBATCH --mem-per-cpu=500 # in MB
-
-source new-modules.sh
-module load python/2.7.6-fasrc01
-source activate graphlab
-
-module load legacy
-module load centos6/gcc-4.8.0
-
-# compile 
-g++ -std=c++11 example2.cpp -I ~/graphlab-sdk -shared -fPIC -o example2.so
-
-# which python are we using
-which python
-
-# actually run the program
-python HelloWorld2.py
+for CORES in 1 2 #4 8 16 32
+do
+    for NUM_OBSERVATIONS in 4 #16 64 256 1024 4096 8192 16384
+    do
+        for OBSLEN in 100 #1000 10000
+        do
+            echo "Cores: ${CORES}, NUM_STATES/NUM_OBSERVATIONS: ${NUM_OBSERVATIONS}, OBSERVATION_LENGTH: ${OBSLEN}"
+            export CORES NUM_OBSERVATIONS OBSLEN
+            sbatch -o hmm_c${CORES}_n${NUM_OBSERVATIONS}_l${OBSLEN}.out \
+                -e hmm_c${CORES}_n${NUM_OBSERVATIONS}_l${OBSLEN}.err \
+                --job-name=hmm_c${CORES}_n${NUM_OBSERVATIONS}_l${OBSLEN} \
+                -n ${CORES} submit.sbatch
+            echo "Done submitting"
+            sleep 1 # pause to be kind to the scheduler
+        done
+    done
+done
