@@ -27,8 +27,7 @@ We can define
 \end{equation}
 
 then the formulas for $\gamma$'s and $\xi$'s remain the same since the normalizers cancel out.
-\\
-\\
+
 We verify the correctness of our implementation with the library HMM function in
 Matlab~\cite{matlab}, and the outputs match exactly at every step, giving us confidence in our implementation. 
 
@@ -68,9 +67,9 @@ Computation of the forward probabilities, backward probabilities, and $\gamma_{i
 We had a lot of secret weapons. 
 
 \begin{itemize}
-\item \textbf{GraphLab Create SDK (C++)}.  Released in December 2014, this SDK ``provide[s] 3rd party extensibility to GraphLab Create."  After difficulty with achieving strong performance in the GraphLab programming assignment, Surat Teerapittayanon suggested that we try this SDK, and we found it powerful.
+    \item \textbf{GraphLab Create SDK (C++)}~\cite{graphlab-create}.  Released in December 2014, this SDK ``provide[s] 3rd party extensibility to GraphLab Create."  After difficulty with achieving strong performance in the GraphLab programming assignment, Surat Teerapittayanon suggested that we try this SDK, and we found it powerful.
 
-\item \textbf{Dato Forum}.  Dato, the company behind GraphLab, was extremely helpful with our reports of bugs and other issues when working with their SDK.  We even suggested an optimization for the core library of GraphLab, which they recommended we implement and submit in a pull request!
+    \item \textbf{Dato Forum}~\cite{datoforum}.  Dato, the company behind GraphLab, was extremely helpful with our reports of bugs and other issues when working with their SDK.  We even suggested an optimization for the core library of GraphLab, which they recommended we implement and submit in a pull request!
 
-\item \textbf{MATLAB}.  MATLAB comes with an HMM library in its Machine Learning Toolkit, and this library offers invaluable functions that allow one to see $\gamma_{it}$ values for given training sequences, which was enormously invaluable in debugging.  MATLAB also reports which normalizing values are used, and we were able to match ours with their values (through some trial and error and debugging).
+\item \textbf{MATLAB}~\cite{matlab}.  MATLAB comes with an HMM library in its Machine Learning Toolkit, and this library offers invaluable functions that allow one to see $\gamma_{it}$ values for given training sequences, which was enormously invaluable in debugging.  MATLAB also reports which normalizing values are used, and we were able to match ours with their values (through some trial and error and debugging).
 \end{itemize}
