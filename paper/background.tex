@@ -43,7 +43,7 @@ a^*_{ij} = \frac{\sum_{t=1}^{T-1}\xi_{ij}(t)}{\sum_{t=1}^{T-1}\gamma_i(t)}
 \end{equation}
 We update $B$ by:
 \begin{equation}\label{b}
-b^*_{iv_k} = \frac{\sum_{t=1}^{T}1_{o_t = v_k} \gamma_i(t)}{\sum_{t=1}^T \gamma_i(t)}
+b^*_{i,v_k} = \frac{\sum_{t=1}^{T}1_{o_t = v_k} \gamma_i(t)}{\sum_{t=1}^T \gamma_i(t)}
 \end{equation}
 where $1_{o_t = v_k}$ is $1$ if $o_t = v_k$ and $0$ otherwise. 
 
