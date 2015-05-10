@@ -108,7 +108,7 @@ def train(A, B, prior, observationSequence):
 	newA = np.zeros((NUM_STATES, NUM_STATES))
 	for i in range(NUM_STATES):
 		for j in range(NUM_STATES):
-			newA[i, j] = xiTable[i, j] / (sum(gammaTable[i, :]))
+			newA[i, j] = xiTable[i, j] / (sum(gammaTable[i, :-1]))
 
 	newB = np.zeros((NUM_STATES, NUM_OBSERVATIONS))
 	for i in xrange(NUM_STATES):
@@ -161,6 +161,7 @@ def parallel(A, B, prior, observationSequence):
 	g = g.add_edges(edges)
 	g = example2.fp(g, observationSequence, NITERS, NUM_STATES, NUM_OBSERVATIONS)
 	print g.vertices
+	print g.edges
 
 # make sure you run parallel before serial, because serial mutates the
 # parameters
