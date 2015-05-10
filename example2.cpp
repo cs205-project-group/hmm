@@ -103,8 +103,11 @@ gl_sgraph fp(gl_sgraph& g, std::vector<int> observation_seq, int n) {
         }, {"bit"});
 	}
 
-        g.vertices()["git"] = g.vertices()["ait"] * g.vertices()["bit"] / normalizers;
+//        g.vertices()["git"] = g.vertices()["ait"] * g.vertices()["bit"] / normalizers;
 
+ g.vertices()["git"] = g.vertices()[{"ait", "bit"}].apply([normalizers](const std::vector<flexible_type>& x) { 
+        return vector_divide(vector_multiply(x[0], x[1]), normalizers); 
+    }, flex_type_enum::VECTOR);
 
     int obseq_size = OBSEQ_SIZE;
     g.vertices()["git_sum"] = g.vertices()["git"].apply([obseq_size](const std::vector<flexible_type>& x) { 

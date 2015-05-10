@@ -1,0 +1,49 @@
+\section{Approach and Secret Weapon}
+
+\subsection{Serial Implementation}
+
+\subsection{Failed Parallel Attempt}
+We first approached the challenge by representing the Hidden Markov model computation as one over a bipartite graph.  Consider the Markov chain that underlies the hidden Markov model.  We created two vertices for each state in this chain, one designated the ``odd vertex" and one designated the ``even vertex".  Call original vertex $u$'s two vertices $u_{odd}$ and $u_{even}$. For each original edge $(u, v)$ in the hidden Markov model, we created two edges in our bipartite graph, $(u_{odd}, v_{even})$, $(u_{even}, v_{odd})$.   Each vertex $v$, regardless of being an odd or even vertex, stores: 
+
+\begin{itemize}
+	\item Two arrays of size $\theta(T)$, where $T$ is the length of the observation sequence: one for each of the original state $v$'s forward and backward probabilities.  Odd vertices store forward-backward probabilities corresponding to odd time steps, and even vertices store probabilities corresponding to even time steps.  Note that it is possible to save space by a constant factor in this implementation by allocating an array of roughly $T/2$ in size.  In our initial implementation, we did not end up making this space optimization.  
+	
+	\item The column of the observation matrix corresponding to its associated state in the original Markov chain, of size $\theta(M)$.  Note that in this approach, both copies of the vertex - odd and even - receive the same column of the observation matrix, though this redundant space usage does not affect our asymptotic space usage.
+\end{itemize}
+
+Edges initially store the appropriate entry of the initial transition matrix $A$.  Like the observation matrix columns, the edge $A_{ij}$ values are duplicated, one for each version of an edge.
+
+With this computation graph, one can now ``ping pong" the computations of the forward and backward probabilities across the graph's sides.  Recall the recursive case for the forward probabilities:
+
+$$\alpha_{j, t+1} = b_j(O_{t + 1})\sum_{i = 1}^N \alpha_{it} a_{ij} $$
+
+Suppose $t+1$ is an even number.  Then vertex $j_{even}$ can compute a sum based on its incoming edges, one for each original state $i$ of the form $(i_{odd}, j_{even})$.  Vertex $i_{odd}$ stores the forward probability $\alpha_{i t}$, since $t$ is an odd number.  Of course, the edge joining these vertices stores the relevant transition probability $a_{ij}$.  The relevant emission probability $b_j(O_{t + 1})$ is on the vertex $j_{even}$ too.  Thus, this sum can be computed using GraphLab's $\tt{triple\_apply}$ function, each relevant edge adding one term each to an accumulator variable on its right endpoint, $j_{even}$.  The backward probabilities can be computed in a similar way.
+
+Recall the formula for the next phase of the Baum-Welch training algorithm, $\gamma_{it}$: 
+$$\gamma_{it} = \frac{\alpha_{it}\beta_{it}}{\sum_{j = 1}^N \alpha_{jt}\beta_{jt}} $$
+
+This parameter is straightforward to compute in parallel, given our graph representation: every vertex can simply compute the $\gamma_{it}$ for odd or even $t$ pertaining to its original state $i$ in the Markov chain.  This computation can be done in parallel across all vertices.   Note that in our implementation, the normalization scheme is such that $\sum_{j = 1}^N \alpha_{jt}\beta_{jt} = 1$, so the division is unnecessary, which simplifies this portion of the algorithm.
+
+Before we get to the good stuff - updating the $A$ matrix - we need to compute one more parameter, $\xi_{(i,j)t}$, the formula for which is
+
+$$\xi_{(i,j)t} = \frac{\alpha_{it}a_{ij}\beta_{j, t+1} b_j(O_{t+1})}{\sum_{j = 1}^N \alpha_{jt}\beta_{jt}}$$
+
+Again, due to normalization, the denominator here turns out to be 1.  We also noted a potential optimization that we applied in serial as well: the update of the hidden markov model parameters only relies on the sum $\sum_{t = 1}^{T-1} \xi_{(i,j)t} $ for fixed $(i, j)$, so in our implementation, we only store the sum for each $(i, j)$.
+
+The numerator seemed like a perfect fit for another $\tt{triple\_apply}$ function call.  An edge joins the node storing the $\alpha_{it}$ and the node storing $\beta_{j, t+1}$, since one of these $t$ values is odd and the other is even.  This edge then provides the relevant transition probability $a_{ij}$ and the observation matrix entry can just be grabbed off the version of node $j$, odd or even.  We realized a problem. There are, as stated before, two copies of the nodes, and two edges joining copies with different parities.  The sums of the $\xi_{(i,j)t}$ values that are computed on each edge will only get roughly half of the terms from the sum.  Communication would be required to combine the two values, and send them out to each edge for updates.  We considered performing join operations on the associated edge data table, but we worried about performance of this fix and ultimately opted for what we think is a simpler approach.
+
+\subsection{Final Parallel Implementation}
+
+Our final parallel implementation uses a much simpler graph representation: the graph is simply the hidden Markov chain in question! No duplicated edges or vertices.  The vertices and edges store the same data as the previous implementation, except that each vertex stores all of its forward and backward probabilities, not just half of them.  By design, this approach is compact, and also distributes space for the data evenly across each of the vertices.
+
+Computation of the forward probabilities, backward probabilities, and $\gamma_{it}$ probabilities can be computed similarly to before.\footnote{In our implementation, we perform the computation of the $\gamma_{it}$ using vectorized arithmetic operations that GraphLab provides on the associated vertex data table.}  Computation of the $\xi_{(i, j)t}$ values can be computed similar to before, except now the 
+
+\subsection{Secret Weapon}
+
+We had a lot of secret weapons. 
+
+\begin{itemize}
+\item \textbf{GraphLab Create SDK (C++)}.  Released in December 2014, this SDK ``provide[s] 3rd party extensibility to GraphLab Create."  After experience with performance in the GraphLab programming assignment, Surat suggested that we try this SDK, and we found it easy to use and that it seems to help achieve better performance.
+
+\item \textbf{Dato Forum}.  The Dato
+\end{itemize}

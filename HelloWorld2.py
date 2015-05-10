@@ -158,7 +158,7 @@ def parallel(A, B, prior, observationSequence):
 
 	g = g.add_edges(edges)
 	print observationSequence
-	g = example2.fp(g, observationSequence, 10)
+	g = example2.fp(g, observationSequence, 1)
 	print g.vertices
 parallel(A, B, prior, sequences[0])
 serial()
