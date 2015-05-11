@@ -38,7 +38,7 @@ void get_gammas(gl_sgraph& g) {
 
 }
 
-gl_sgraph fp(gl_sgraph& g, std::vector<int> observation_seq, int n, int NUM_STATES, int NUM_OBSERVATIONS) {
+gl_sgraph train(gl_sgraph& g, std::vector<int> observation_seq, int n, int NUM_STATES, int NUM_OBSERVATIONS) {
 
     for (int i = 0; i < n; i++) {
 
@@ -171,5 +171,5 @@ gl_sgraph fp(gl_sgraph& g, std::vector<int> observation_seq, int n, int NUM_STAT
 }
 
 BEGIN_FUNCTION_REGISTRATION
-REGISTER_FUNCTION(fp, "g", "observation_seq", "n", "NUM_STATES", "NUM_OBSERVATIONS"); // provide named parameters
+REGISTER_FUNCTION(train, "g", "observation_seq", "n", "NUM_STATES", "NUM_OBSERVATIONS"); // provide named parameters
 END_FUNCTION_REGISTRATION

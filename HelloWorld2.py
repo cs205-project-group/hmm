@@ -137,7 +137,7 @@ def serial():
 
 
 import graphlab
-import example2
+import hmm
 from graphlab import SGraph, Vertex, Edge
 
 def parallel(A, B, prior, observationSequence):
@@ -159,7 +159,7 @@ def parallel(A, B, prior, observationSequence):
 					attr={'aij': A[i, j], 'xi': 0.0}))
 
 	g = g.add_edges(edges)
-	g = example2.fp(g, observationSequence, NITERS, NUM_STATES, NUM_OBSERVATIONS)
+	g = hmm.train(g, observationSequence, NITERS, NUM_STATES, NUM_OBSERVATIONS)
 	print g.vertices
 	print g.edges
 
