@@ -29,8 +29,7 @@ We can define
 then the formulas for $\gamma$'s and $\xi$'s remain the same since the normalizers cancel out.
 
 We verify the correctness of our implementation with the library HMM function in
-Matlab~\cite{matlab}, and the outputs match exactly at every step, giving us confidence in our implementation. 
-
+MATLAB~\cite{matlab}, and our calculations of $\alpha$, $\beta$, and $\gamma$ seemed to match, though we found some disagreement in the final results, on both corner cases and non-corner cases in our final checks.  We believe that MATLAB may handle some corner cases differently, and in addition, may have a different method for computing some of the final sums necessary to update the model parameters.  Regardless, we don't think we missed anything in our implementation that would cause the performance to drastically differ, and that is what we are interested in here. 
 
 \subsection{Failed Parallel Attempt}
 We first approached the challenge by representing the Hidden Markov model computation as one over a bipartite graph.  Consider the Markov chain that underlies the hidden Markov model.  We created two vertices for each state in this chain, one designated the ``odd vertex" and one designated the ``even vertex".  Call original vertex $u$'s two vertices $u_{odd}$ and $u_{even}$. For each original edge $(u, v)$ in the hidden Markov model, we created two edges in our bipartite graph, $(u_{odd}, v_{even})$, $(u_{even}, v_{odd})$.   Each vertex $v$, regardless of being an odd or even vertex, stores: 
@@ -71,5 +70,5 @@ We had a lot of secret weapons.
 
     \item \textbf{Dato Forum}~\cite{datoforum}.  Dato, the company behind GraphLab, was extremely helpful with our reports of bugs and other issues when working with their SDK.  We even suggested an optimization for the core library of GraphLab, which they recommended we implement and submit in a pull request!
 
-\item \textbf{MATLAB}~\cite{matlab}.  MATLAB comes with an HMM library in its Machine Learning Toolkit, and this library offers invaluable functions that allow one to see $\gamma_{it}$ values for given training sequences, which was enormously invaluable in debugging.  MATLAB also reports which normalizing values are used, and we were able to match ours with their values (through some trial and error and debugging).
+\item \textbf{MATLAB}~\cite{matlab}.  MATLAB comes with an HMM library in its Machine Learning Toolkit, and this library offers invaluable functions that allow one to see $\alpha_i(t)$, $\beta_i(t)$,  and $\gamma_{it}$ values for given training sequences, which was enormously invaluable in debugging.  MATLAB also reports which normalizing values are used, and used a trial-and-error debugging approach to figure out what was wrong with our code at times.  See the disclaimer earlier in the paper about matching the MATLAB implementation. 
 \end{itemize}
