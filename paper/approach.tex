@@ -1,7 +1,7 @@
 \section{Approach and Secret Weapon}
 
 \subsection{Serial Implementation}
-We first implemented Baum-Welch in python with python package numpy. Our initial
+We first implemented Baum-Welch in Python with Python package Numpy. Our initial
 implementation ran into serious underflow issues from the calculations of
 $\alpha$'s and $\beta$'s due to multiplying probabilities together. We solve
 this by following the methods detailed by Zhai~\cite{normalizer}. We normalize by scaling $\alpha_i(t)$'s such that they sum up to $1$ over $i$'s --- that is over all states. So 
