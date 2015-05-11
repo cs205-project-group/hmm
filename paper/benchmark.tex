@@ -1,9 +1,10 @@
 \section{Performance Evaluation}
 
 We evaluated the performance of our code measuring runtime of our serial and
-graph parallel code for a variety of $N$, $M$, and $T$. Additionally, we also
-varied the number of cores available for Graphlab. R~\cite{r} was used for data
-analysis and plotting. 
+graph parallel code for a variety of $N$, $M$, and $T$. For both the serial and
+parallel versions, we ran 5 update iterations of the Baum-Welch algorithm.
+Additionally, we also varied the number of cores available for Graphlab.
+R~\cite{r} was used for data analysis and plotting. 
 
 Our parallel code's runtime, compared to that of the serial version, is shown in
 Figure~\ref{fig:runtime-256-500}. We see that, while our GraphLab implementation
@@ -17,6 +18,12 @@ we increase the number of processing cores.
     \label{fig:runtime-256-500}
 \end{figure*}
 
+Figures for other testing conditions are shown in the appendix, in
+Figures~\ref{fig:runtime1}--\ref{fig:runtime4}. In general, runtime for the
+serial code remains constant, and runtime for the parallel code decreases with
+more processors. In many cases, runtime increases when going from 2 to 4
+cores---this may represent increased communication cost between more processors. 
+
 Most compelling, we examined how our implementation scales as we increase the
 problem size, especially $N$. A log-log plot of running time vs. $N$ is shown in
 Figure~\ref{fig:scaling-16-200}. Judging by the slopes on the graph, our
@@ -28,3 +35,6 @@ GraphLab code scales better than the serial code, especially for smaller $N$.
     \caption{Log-Log plot of runtime as a function of number of states $N$.}
     \label{fig:scaling-16-200}
 \end{figure*}
+
+Additional figures for other testing conditions display similar trends and are
+shown in the appendix, Figures~\ref{fig:scaling1}--\ref{fig:scaling4}. 
