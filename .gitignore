@@ -1,9 +1,9 @@
 *.swp
 *.so
-*.aux
-*.pdf
-*.out
-*.log
-*.bbl
-*.blg
-*.synctex.gz
+paper/*.aux
+paper/*.pdf
+paper/*.out
+paper/*.log
+paper/*.bbl
+paper/*.blg
+paper/*.synctex.gz
