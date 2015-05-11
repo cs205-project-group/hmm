@@ -15,4 +15,4 @@ module load centos6/gcc-4.8.0
 which python
 
 # actually run the program
-python HelloWorld2.py --NUM_STATES ${NUM_OBSERVATIONS} --NUM_OBSERVATIONS ${NUM_OBSERVATIONS} --OBSERVATION_LENGTH ${OBSLEN}
+python runhmm.py --NUM_STATES ${NUM_OBSERVATIONS} --NUM_OBSERVATIONS ${NUM_OBSERVATIONS} --OBSERVATION_LENGTH ${OBSLEN}
