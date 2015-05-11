@@ -2,9 +2,12 @@ library(data.table)
 
 # if you don't have this library installed, run
 # install.packages('data.table')
+
+# read the data
 runtimes.raw <- read.csv('data.csv')
 
 # manually input the number of cores used
+# cross-verified from looking at the fullout.csv file
 cores <- rep(c(16, 2, 32, 4, 8), rep(18, 5))
 runtimes.raw$CORES <- cores
 
@@ -21,6 +24,7 @@ cores <- sort(unique(runtimes[, CORES]))
 
 # create directory for figures
 dir.create("../figure")
+# will give a warning if this directory already exists. Can safely ignore it
 
 # show runtime vs. processors
 for (n in numStates) {
@@ -35,7 +39,7 @@ for (n in numStates) {
         pdat <- pdat[order(CORES)]
 
         fname <- sprintf("../figure/runtime-N_%d-T_%d.pdf", n, obs)
-        pdf(fname)
+        pdf(fname) # plot will be written to pdf
         plot(pdat[, CORES], pdat[, PARALLEL], type='b',
              ylim=c(min(pdat[, SERIAL]), max(pdat[, PARALLEL])), 
              main=paste("Runtime", subtitle, sep='\n'), 
@@ -61,7 +65,7 @@ for (core in cores) {
 
         fname <- sprintf("../figure/scaling-cores_%d-T_%d.pdf", core, obs)
 
-        pdf(fname)
+        pdf(fname) # plot will be written to pdf
         plot(pdat[, NUM_STATES], pdat[, PARALLEL], type='b', 
             ylim=c(min(pdat[, SERIAL]), max(pdat[, PARALLEL])), 
             main=paste("Scaling", subtitle, sep='\n'), 
