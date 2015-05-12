@@ -9,7 +9,7 @@ To run, first ensure that GraphLab module is installed. This can be found at htt
 
 Download Dato GraphLab SDK by following the instructions at https://github.com/dato-code/GraphLab-Create-SDK
 
-In the code directory, compile our C++ GraphLab extention [`hmm.cpp`](hmm.cpp) file by following the instructions in [`compile.txt`](compile.txt).
+In the code directory, compile our C++ GraphLab extention [`hmm.cpp`](hmm.cpp) file by following the instructions in [`compile.txt`](compile.txt). Remember to change the `/path/to/graphlab-sdk` to the path where the GraphLab SDK is installed.
 
 Finally, our Python code to generate synthetic HMM data and run both the parallel and serial implementations  ([runhmm.py](runhmm.py)) can be run by using `python runhmm.py`:
 ```
