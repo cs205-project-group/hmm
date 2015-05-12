@@ -10,7 +10,7 @@ Download Dato GraphLab SDK by following the instructions at https://github.com/d
 
 In the code directory, compile the `hmm.cpp` file by following the instructions in `compile.txt`.
 
-Finally, the code can be run by 
+Finally, the code can be run by using `python runhmm.py`:
 ```
 usage: runhmm.py [-h] [--NUM_STATES NUM_STATES]
                  [--NUM_OBSERVATIONS NUM_OBSERVATIONS]
@@ -43,3 +43,6 @@ Both the data and the code to analyze the data are found in the analysis folder.
 
 ## Paper
 Please find the files for our paper and its associated figures in the paper and figure folders, respectively. 
+
+## Notes
+* A prior attempt with a different graph architecture can be found in the attempt folder. 
