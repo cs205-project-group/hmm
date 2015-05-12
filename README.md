@@ -12,19 +12,20 @@ In the code directory, compile the hmm.cpp file by following the instructions in
 
 Finally, the code can be run by 
 
-usage: runhmm.py [-h] [--NUM_STATES NUM_STATES]
+	usage: runhmm.py [-h] [--NUM_STATES NUM_STATES]
                  [--NUM_OBSERVATIONS NUM_OBSERVATIONS]
                  [--OBSERVATION_LENGTH OBSERVATION_LENGTH] [--niters niters]
 
-optional arguments:
-  -h, --help            show this help message and exit
-  --NUM_STATES NUM_STATES
-                        num states
-  --NUM_OBSERVATIONS NUM_OBSERVATIONS
-                        num observations
-  --OBSERVATION_LENGTH OBSERVATION_LENGTH
-                        observation length
-  --niters niters       Number of iterations to run
+	optional arguments:
+	  -h, --help            show this help message and exit
+  	  o
+	--NUM_STATES NUM_STATES
+    	                    num states
+  	--NUM_OBSERVATIONS NUM_OBSERVATIONS
+        	                num observations
+	  --OBSERVATION_LENGTH OBSERVATION_LENGTH
+        	                observation length
+	  --niters niters       Number of iterations to run
   
 The default values for these are 4,4,16,5, respectively. 
 
