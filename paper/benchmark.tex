@@ -24,7 +24,9 @@ Figures for other testing conditions are shown in the appendix, in
 Figures~\ref{fig:runtime1}--\ref{fig:runtime4}. In general, runtime for the
 serial code remains constant, and runtime for the parallel code decreases with
 more processors. In many cases, runtime increases when going from 2 to 4
-cores---this may represent increased communication cost between more processors. 
+cores---this may represent increased communication cost between more processors.
+Noise in our plots may be caused by changes in processing load on the Odyssey
+server.
 
 Most compelling, we examined how our implementation scales as we increase the
 problem size, especially $N$. A log-log plot of running time vs. $N$ is shown in
