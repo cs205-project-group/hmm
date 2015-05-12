@@ -1,7 +1,6 @@
 import graphlab
 import numpy as np
-import example
-from sklearn import hmm
+import attempt-hmm
 NUM_STATES = 5
 NUM_OBSERVATIONS=5
 OBSERVATION_LENGTH=40
@@ -152,9 +151,9 @@ def parallel(observationSequence):
 
 	g = g.add_edges(edges)
 
-	print "finished adding edges. calling example.fg..."
-	g = example.fp(g, observationSequence)
-	print "finished calling example fg"
+	print "finished adding edges. calling fg..."
+	g = attempt-hmm.fp(g, observationSequence)
+	print "finished calling fg"
 	print g.vertices
 	#g.show()
 	#import time
