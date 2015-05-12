@@ -20,11 +20,11 @@ Finally, the code can be run by
 	  -h, --help            show this help message and exit
   	  o
 	--NUM_STATES NUM_STATES
-    			num states
+			num states
   	--NUM_OBSERVATIONS NUM_OBSERVATIONS
-        	       	num observations
+			num observations
 	--OBSERVATION_LENGTH OBSERVATION_LENGTH
-        	        observation length
+			observation length
 	--niters niters
 			Number of iterations to run
 
