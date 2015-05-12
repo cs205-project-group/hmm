@@ -1,6 +1,6 @@
 import graphlab
 import numpy as np
-import attempt-hmm
+import attempthmm
 NUM_STATES = 5
 NUM_OBSERVATIONS=5
 OBSERVATION_LENGTH=40
@@ -84,8 +84,6 @@ def train(A, B, prior, observationSequence):
 		for t in range(OBSERVATION_LENGTH + 1):
 			#print "is this 1?", np.dot(alphaTable[:, t], betaTable[:, t])
 			gammaTable[i, t] = alphaTable[i, t] * betaTable[i, t] #/ np.dot(alphaTable[:, t], betaTable[:, t])
-	print gammaTable
-	return None
 	newprior = gammaTable[:,0] # first column
 	gammaTable = gammaTable[:, 1:]
 
@@ -152,7 +150,7 @@ def parallel(observationSequence):
 	g = g.add_edges(edges)
 
 	print "finished adding edges. calling fg..."
-	g = attempt-hmm.fp(g, observationSequence)
+	g = attempthmm.fp(g, observationSequence)
 	print "finished calling fg"
 	print g.vertices
 	#g.show()
