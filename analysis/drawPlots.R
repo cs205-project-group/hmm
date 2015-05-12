@@ -70,7 +70,7 @@ for (core in cores) {
             ylim=c(min(pdat[, SERIAL]), max(pdat[, PARALLEL])), 
             main=paste("Scaling", subtitle, sep='\n'), 
             xlab="log2(Number of states N)", ylab="log2(Runtime (s))")
-        points(pdat[, NUM_STATES], pdat[, SERIAL], pch=19, type='b')
+        points(pdat[, NUM_STATES], pdat[, SERIAL], pch=19, type='b', lty=2)
         legend('bottomright', legend=c("Parallel", "Serial"), pch=c(1, 19),
                lty=c(1,2))
         dev.off()
