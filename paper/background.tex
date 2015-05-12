@@ -58,10 +58,7 @@ Define $\xi_{ij}(t)$ to be the probability of being in state $i$ at time $t$ and
 &=\frac{\alpha_i(t) a_{ij} \beta_j(t+1)b_{jo_{t+1}}}{\sum_{k=1}^N \alpha_k(t) \beta_k(t)}
 \end{aligned}
 \end{equation}
-
-We can now update our parameters. $\pi$ can be updated as:
-
-$A$ can be updated by: 
+Finally, $A$ can be updated by: 
 
 \begin{equation}\label{a}
 a^*_{ij} = \frac{\sum_{t=1}^{T-1}\xi_{ij}(t)}{\sum_{t=1}^{T-1}\gamma_i(t)}
