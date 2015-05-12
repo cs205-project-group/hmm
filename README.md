@@ -27,6 +27,8 @@ Finally, the code can be run by
         	        observation length
 	--niters niters
 			Number of iterations to run
+
+(Command-line argument usage instructions obtained from Python argparse default "help" output.)
   
 The default values for these are 4,4,16,5, respectively. 
 
