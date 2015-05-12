@@ -8,7 +8,7 @@ To run, first ensure that GraphLab module is installed. This can be found at htt
 
 Download Dato GraphLab SDK by following the instructions at https://github.com/dato-code/GraphLab-Create-SDK
 
-In the code directory, compile the hmm.cpp file by following the instructions in compile.txt.
+In the code directory, compile the `hmm.cpp` file by following the instructions in `compile.txt`.
 
 Finally, the code can be run by 
 ```
