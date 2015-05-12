@@ -6,26 +6,52 @@ A hidden Markov model assumes that the system follows a Markov process. For this
 We can thus capture all the information about an HMM with $\theta = (A, B, \pi)$. In an HMM, we are given a sequence of $T$ observations, and we will use a series of forward and backwards propagations to estimate the parameters $\theta = (A, B, \pi)$.
 
 \subsection{Baum-Welch}
-Let $(X_1, X_2, \ldots, X_N)$ denote the $N$ states and $\bold{O} = \{O_1, O_2, \ldots, O_T\}$ the $T$ observed outputs. The Baum-Welch uses expectation-maximization to find the maximum likelihood estimate.
 
-We set $\theta  =  (A, B, \pi)$ randomly. For the forward procedure, we define $\alpha_i(t) = P(O_1 = o_t, \ldots, O_t = o_t | \theta)$. That is, the probability of observing the first $t$ outputs given a set of parameters. We can then iteratively find:
+The following explanation is based on Wikipedia's presentation of the algorithm. \cite{bwwiki}
+
+Let $(X_1, X_2, \ldots, X_N)$ denote the $N$ states and $\bold{O} = \{O_1, O_2, \ldots, O_T\}$ the $T$ observed outputs. The Baum-Welch algorithm uses expectation-maximization to find the maximum likelihood estimate.
+
+Suppose we begin with some initial parameters, $\theta  =  (A, B, \pi)$.  Given the observation sequence, our task is to update these parameters based on insights from the training sequence.  
+
+Given our training sequence, Baum-Welch first figures out the probability of being in a state at some time in the ``run" of the observation sequence.  Let's call this $\gamma_{i}(t)$, the ``probability of being in state $i$ at time $t$ of this observation sequence given our current model parameters," $P(X_t = i | \bold{O}, \theta)$.
+
+How can we figure this out? To do this, the Baum-Welch algorithm performs two sub-calculations, for the ``forward probabilities" and the ``backward probabilities."  Like $\gamma_i(t)$ values, the forward probability are computed for each ($\textit{state}, \textit{time}$) pair: given some observation sequence and our current moel, the forward probability $\alpha_i(t)$ is the probability of seeing the observation sequence up to time $t$ and landing in state $i$.  The backward probability is defined analogously: it's the probability of starting in some state $i$ and seeing the observation sequence \textit{from} time $t$ until the end.
+
+We can define the forward and backward probabilities recursively:
 
 \begin{equation} \label{alpha}
 \alpha_i(t+1) =  b_{jo_1}\sum_{i=1}^{N} \alpha_i(t)a_{ij}
 \end{equation}
 
-For backwards procedure, we define $\beta_i(t) = P(O_{t+1} = o_{t+1}, \ldots, O_T = o_T | \theta)$, the probability of observing the last $T - t$ outputs given a set of parameters. We can find $\beta$ iteratively by:
 \begin{equation} \label{beta}
 \beta_i(t) = \sum_{i=1}^N \beta_j(t+1)a_{ij}b_j(o_{t+1})
 \end{equation}
 
-Now define $\gamma_i(t)$ to be the probability of being in state $i$ given $\bold{O}$ and parameter $\theta$. We can update $\gamma_i(t)$ as:
+We can put the alpha and beta probabilities together to find $\gamma_i(t)$.  Some intuition for this formula: the bottom is the probability of being in \textit{some state} at time $t$ given our \textit{entire} observation sequence.  The top is the probability of being in some particular state $i$ at time $t$ given our \textit{entire} observation sequence.  For both numerator and denominator, you have to get to the state at that time (forward probability) and leave from the state next and finish emitting the observation sequence  (backward probability).
 
 \begin{equation} \label{gamma}
 \gamma_i(t) = P(X_t = i | \bold{O}, \theta) = \frac{\alpha_i(t) \beta_i(t)}{\sum_{j=1}^N \alpha_j(t) \beta_j(t)}
 \end{equation}
 
-We define $\xi_{ij}(t)$ to be the probability of being in state $i$ at time $t$ and state $j$ at time $t+1$ given $\bold{O}$ and parameter $\theta$. 
+From here, we can figure out our updates for the $B$ matrix and the new prior. 
+
+$B$ can be updated by: 
+\begin{equation}\label{b}
+b^*_{i,v_k} = \frac{\sum_{t=1}^{T}1_{o_t = v_k} \gamma_i(t)}{\sum_{t=1}^T \gamma_i(t)}
+\end{equation}
+where $1_{o_t = v_k}$ is $1$ if $o_t = v_k$ and $0$ otherwise. 
+
+Intuition: the update for  $b^*_{i,v_k}$ is just the frequency across the entire observation sequence of being in the state $i$ and seeing $v_k$.
+
+\begin{equation}\label{pi}
+\pi_i^* = \gamma_i(0)
+\end{equation}
+
+Intuition: this is the probability of being in state $i$ before the observation sequence begins.  
+
+To update the $A$ matrix (each $a_{ij}$ entry), we need to figure  out the probability of being in state $i$ and $\textit{moving}$ to state $j$ next.  Fortunately, this calculation can be done in a straightforward way, and we can think of it as a ``relative frequency calculation" of the transitions that begin at state $i$ and go to state $j$ compared to the transitions through state $i$.  This ``relative frequency intuition" is provided by \cite{rabiner1986introduction}.
+
+Define $\xi_{ij}(t)$ to be the probability of being in state $i$ at time $t$ and state $j$ at time $t+1$ given $\bold{O}$ and parameter $\theta$. 
 \begin{equation}\label{xi}
 \begin{aligned}
 \xi_{ij}(t) &= P(X_t = i, X_{t+1} = j | \bold{O}, \theta)  \\
@@ -33,24 +59,18 @@ We define $\xi_{ij}(t)$ to be the probability of being in state $i$ at time $t$ 
 \end{aligned}
 \end{equation}
 
-We can now update our parameters. We update $\pi$ by:
-\begin{equation}\label{pi}
-\pi_i^* = \gamma_i(t)
-\end{equation}
-We update $A$ by:
+We can now update our parameters. $\pi$ can be updated as:
+
+$A$ can be updated by: 
+
 \begin{equation}\label{a}
 a^*_{ij} = \frac{\sum_{t=1}^{T-1}\xi_{ij}(t)}{\sum_{t=1}^{T-1}\gamma_i(t)}
 \end{equation}
-We update $B$ by:
-\begin{equation}\label{b}
-b^*_{i,v_k} = \frac{\sum_{t=1}^{T}1_{o_t = v_k} \gamma_i(t)}{\sum_{t=1}^T \gamma_i(t)}
-\end{equation}
-where $1_{o_t = v_k}$ is $1$ if $o_t = v_k$ and $0$ otherwise. 
 
 These steps are repeated until the parameters converge. 
 
 \subsection{Prior Work}
 
-Here we review prior work related to \textit{parallelization} of hidden Markov models specifically.  In 2009, Chuan Liu conducted an independent project aiming to implement HMM training in parallel on CUDA.  The project's parallelization forward-backward probabilities computation inspired our design.  The rest of his work frames computations in terms of matrix multiplication operations.  His work also utilizes ``parallel reduction" for computing the sum of a vector, something we've seen in CS205.  \cite{cuda-hmm}
+Here we review prior work related to \textit{parallelization} of hidden Markov models specifically.  In 2009, Chuan Liu conducted an independent project aiming to implement HMM training in parallel on CUDA.  The project's parallelization of the  forward-backward probabilities computation informed how we could approach parallelizing this part, even though our representation in our framework ended up distinctively graph-based.  The rest of his work frames computations in terms of matrix multiplication operations.  His work also utilizes ``parallel reduction" for computing the sum of a vector, something we've seen in CS205.  \cite{cuda-hmm}
 
 Also, we noted the approach of Li et. al in 2010, applying an earlier parallelization approach - ``cut and stitch" - to the problem of hidden Markov model training.  The ``cut and stitch" approach parallelizes along the length of the input observation sequence (along the $T$-axis).  The graph parallel scheme in this paper is orthogonal to the ``cut and stitch" approach, and we are excited about the prospect of applying these two parallelization schemes to the problem of HMM training. \cite{cut-stitch}
