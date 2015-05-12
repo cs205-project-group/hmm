@@ -1,11 +1,11 @@
 \section{Performance Evaluation}
 
-We evaluated the performance of our code measuring runtime of our serial and
+We evaluated the performance of our code, measuring runtime of our serial and
 graph parallel code for a variety of $N$, $M$, and $T$. We generated synthetic
 data with random $(A, B, \pi)$ as the true parameters, and initialized our
 Baum-Welch training parameters randomly. For both the serial and parallel
 versions, we ran 5 update iterations of the Baum-Welch algorithm.  Additionally,
-we also varied the number of cores available for Graphlab. R~\cite{r} was used
+we also varied the number of cores available for GraphLab. R~\cite{r} was used
 for data analysis and plotting. 
 
 Our parallel code's runtime, compared to that of the serial version, is shown in
@@ -28,10 +28,10 @@ cores---this may represent increased communication cost between more processors.
 Noise in our plots may be caused by changes in processing load on the Odyssey
 server.
 
-Most compelling, we examined how our implementation scales as we increase the
+We examined how our implementation scales as we increase the
 problem size, especially $N$. A log-log plot of running time vs. $N$ is shown in
 Figure~\ref{fig:scaling-16-200}. Judging by the slopes on the graph, our
-GraphLab code scales better than the serial code, especially for smaller $N$. 
+GraphLab code scales better than the serial code for smaller $N$, but unfortunately not for other values of $N$. 
 
 \begin{figure*}[htb]
     \centering

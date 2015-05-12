@@ -1,7 +1,6 @@
 *.swp
 *.so
 paper/*.aux
-paper/*.pdf
 paper/*.out
 paper/*.log
 paper/*.bbl
