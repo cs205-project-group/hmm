@@ -4,7 +4,7 @@
 We first implemented Baum-Welch in Python with numpy, using a mix of vectorized and non-vectorized code.  \footnote{We also used the range function instead of the xrange function in some places.  Our Python implementation also uses the default data type of numpy/Python; our later parallel implementation uses a mix of doubles and floats.  Our project desires to make a comparison based on scaling, so we don't consider these ``constant factor" sorts of differences to be an issue.}  Our initial
 implementation ran into serious underflow issues from the calculations of
 $\alpha$'s and $\beta$'s due to multiplying probabilities together. We solve
-this by following the methods detailed by Zhai~\cite{normalizer}. We normalize by scaling $\alpha_i(t)$'s such that they sum up to $1$ over $i$'s --- that is over all states. So 
+this by following the methods detailed by Zhai~\cite{normalizer}. We normalize by scaling $\alpha_i(t)$'s such that they sum up to $1$ over $i$'s---that is over all states. So 
 
 \begin{equation} 
 \sum_{i=1}^N \hat{\alpha}_t(i) = 1
