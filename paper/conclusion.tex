@@ -1,8 +1,14 @@
 \section{Conclusion}
 
-Our implementation is awesome
+Our implementation demonstrates how HMMs can be implemented using a
+graph-parallel approach. Even though our graph-parallel approach is slower than
+our serial approach, we show that it achieves better scaling than the serial
+approach. Much of the difference in runtime can be attributed to the cost of
+creating the Sgraph data structure in GraphLab, and the immutability of Sgraph,
+necessitating creation of a new Sgraph data structure for each application of
+\texttt{triple\_apply}. 
 
 \section*{Acknowledgement}
 
-The authors like to thank the teaching staff of CS 205, as well as Jay Gu and Srikrishna Sridhar from
-Dato, for their tips and helpful advice.
+The authors like to thank the teaching staff of CS 205, as well as Jay Gu and
+Srikrishna Sridhar from Dato, for their tips and helpful advice.

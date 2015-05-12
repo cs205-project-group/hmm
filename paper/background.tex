@@ -55,7 +55,7 @@ Define $\xi_{ij}(t)$ to be the probability of being in state $i$ at time $t$ and
 \begin{equation}\label{xi}
 \begin{aligned}
 \xi_{ij}(t) &= P(X_t = i, X_{t+1} = j | \bold{O}, \theta)  \\
-&=\frac{\alpha_i(t) a_{ij} \beta_j(t+1)b_{jo_{t+1}}}{\sum_{k=1}^N \alpha_k(t) \beta_k(t)}
+&=\frac{\alpha_i(t) a_{ij} \beta_j(t+1)b_{j}(o_{t+1})}{\sum_{k=1}^N \alpha_k(t) \beta_k(t)}
 \end{aligned}
 \end{equation}
 Finally, $A$ can be updated by: 
@@ -68,6 +68,18 @@ These steps are repeated until the parameters converge.
 
 \subsection{Prior Work}
 
-Here we review prior work related to \textit{parallelization} of hidden Markov models specifically.  In 2009, Chuan Liu conducted an independent project aiming to implement HMM training in parallel on CUDA.  The project's parallelization of the  forward-backward probabilities computation informed how we could approach parallelizing this part, even though our representation in our framework ended up distinctively graph-based.  The rest of his work frames computations in terms of matrix multiplication operations.  His work also utilizes ``parallel reduction" for computing the sum of a vector, something we've seen in CS205.  \cite{cuda-hmm}
+Here we review prior work related to \textit{parallelization} of hidden Markov
+models specifically.  In 2009, Chuan Liu conducted an independent project aiming
+to implement HMM training in parallel on CUDA.  The project's parallelization
+forward-backward probabilities computation inspired our design.  The rest of his
+work frames computations in terms of matrix multiplication operations.  His work
+also utilizes ``parallel reduction" for computing the sum of a vector, something
+we've seen in CS205~\cite{cuda-hmm}.
 
-Also, we noted the approach of Li et. al in 2010, applying an earlier parallelization approach - ``cut and stitch" - to the problem of hidden Markov model training.  The ``cut and stitch" approach parallelizes along the length of the input observation sequence (along the $T$-axis).  The graph parallel scheme in this paper is orthogonal to the ``cut and stitch" approach, and we are excited about the prospect of applying these two parallelization schemes to the problem of HMM training. \cite{cut-stitch}
+Also, we noted the approach of Li et. al in 2010, applying an earlier
+parallelization approach---``cut and stitch''---to the problem of hidden Markov
+model training.  The ``cut and stitch" approach parallelizes along the length of
+the input observation sequence (along the $T$-axis).  The graph parallel scheme
+in this paper is orthogonal to the ``cut and stitch" approach, and we are
+excited about the prospect of applying these two parallelization schemes to the
+problem of HMM training~\cite{cut-stitch}.
