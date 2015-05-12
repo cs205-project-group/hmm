@@ -9,9 +9,9 @@ To run, first ensure that GraphLab module is installed. This can be found at htt
 
 Download Dato GraphLab SDK by following the instructions at https://github.com/dato-code/GraphLab-Create-SDK
 
-In the code directory, compile the `hmm.cpp` file by following the instructions in `compile.txt`.
+In the code directory, compile our C++ GraphLab extention [`hmm.cpp`](hmm.cpp) file by following the instructions in [`compile.txt`](compile.txt).
 
-Finally, the code can be run by using `python runhmm.py`:
+Finally, our Python code to generate synthetic HMM data and run both the parallel and serial implementations  ([runhmm.py](runhmm.py)) can be run by using `python runhmm.py`:
 ```
 usage: runhmm.py [-h] [--NUM_STATES NUM_STATES]
                  [--NUM_OBSERVATIONS NUM_OBSERVATIONS]
@@ -32,18 +32,18 @@ optional arguments:
   
 The default values for these are 4, 4, 16, and 5, respectively. 
 
-## Running this on [Odyssey](rc.fas.harvard.edu)
-Please follow the instructions in `odyssey-setup.txt` for installation instructions, and `submit.sh` for the job submission script (note that this calls `submit.sbatch`). 
+## Running this on [Odyssey](https://rc.fas.harvard.edu/)
+Please follow the instructions in [`odyssey-setup.txt`](odyssey-setup.txt) for installation instructions, and [`submit.sh`](submit.sh) for the job submission script (note that this calls [`submit.sbatch`](submit.sbatch)). 
 
 ## Data Analysis
 Both the data and the code to analyze the data are found in the analysis folder. 
-* `data.csv`: runtime data from Odyssey. Rows with 1 column only correspond to jobs which failed because of time constraints
-* `drawPlots.R`: R code to generate the figures for our paper
-* `fullout.csv`: full data, including the Odyssey output files from which each row of data came from
-* `gather.sh`: Shell script to organize data from Odyssey output files into csv files. 
+* [`data.csv`](analysis/data.csv): runtime data from Odyssey. Rows with 1 column only correspond to jobs which failed because of time constraints
+* [`drawPlots.R`](analysis/drawPlots.R): R code to generate the figures for our paper
+* [`fullout.csv`](analysis/fullout.csv): full data, including the Odyssey output files from which each row of data came from
+* [`gather.sh`](analysis/gather.sh): Shell script to organize data from Odyssey output files into csv files. 
 
 ## Paper
-Please find the files for our paper and its associated figures in the paper and figure folders, respectively. 
+Please find the files for our paper and its associated figures in the [paper](paper) and [figure](figure) folders, respectively. 
 
 ## Notes
-* A prior attempt with a different graph architecture can be found in the attempt folder. 
+* A prior attempt with a different graph architecture can be found in the [attempt](attempt) folder. 
