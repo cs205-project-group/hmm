@@ -20,12 +20,13 @@ Finally, the code can be run by
 	  -h, --help            show this help message and exit
   	  o
 	--NUM_STATES NUM_STATES
-    	                    num states
+    			num states
   	--NUM_OBSERVATIONS NUM_OBSERVATIONS
-        	                num observations
-	  --OBSERVATION_LENGTH OBSERVATION_LENGTH
-        	                observation length
-	  --niters niters       Number of iterations to run
+        	       	num observations
+	--OBSERVATION_LENGTH OBSERVATION_LENGTH
+        	        observation length
+	--niters niters
+			Number of iterations to run
   
 The default values for these are 4,4,16,5, respectively. 
 
